@@ -1,10 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState } from 'react'
 import axios from 'axios';
-import Cookies from 'universal-cookie';
 
-export const LoginScreen = (props) => {
-    const cookies = new Cookies();
-    const [data, setData] = useState({form: {usuario: "", password:""}, error: false, errorMsg: ""});
+export const ResgisterScreen = (props) => {
+    const [data, setData] = useState({form: {nombre: '', apellidos: '', correo: '', password: ''}, error: false, errorMsg: ''});
     const handleSubmit = (e) => {
         e.preventDefault();
     }
@@ -17,23 +15,22 @@ export const LoginScreen = (props) => {
         })
     }
     const handleOnClick = () => {
-        let url = "http://51.38.225.18:3000/login";
+        let url = 'http://51.38.225.18:3000/register';
         axios.post(url, data.form).then((response) => {
             console.log(response);
-            console.log(response.status);
-            if(response.status == 200) {
-               props.history.push('/files');
-               cookies.set('premium', response.data.premium);
-
+            let {status} = response;
+            if(status == 201) {
+                props.history.push('/login');
             }
         })
     }
-
-
     return (
         <div>
-            <h1>Login Screen</h1>
+            <h1>Register Screen</h1>
             <form onSubmit={handleSubmit}>
+                <input type="text" placeholder="Nombre" value={data.form.nombre} name="nombre" onChange={handleOnChange} />
+                <input type="text" placeholder="Apellidos" value={data.form.apellidos} name="apellidos" onChange={handleOnChange} />
+                <input type="email" placeholder="Email" value={data.form.email} name="correo" onChange={handleOnChange} />
                 <input type="text" placeholder="Usuario" value={data.form.usuario} name="usuario" onChange={handleOnChange} />
                 <input type="password" placeholder="Contraseña" value={data.form.password} name="password" onChange={handleOnChange} />
                 <input type="submit" value="Iniciar sesión" onClick={handleOnClick} />
