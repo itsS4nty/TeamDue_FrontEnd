@@ -9,14 +9,14 @@ export const AddFile = ({setFiles}) => {
     }
     const handleSubmit = (e) => {
         e.preventDefault();
-        if(6 > limit) {
-            console.log("No lo puedes crear");
-        } else {
-            if(inputValue.trim().length > 2) {
-                setFiles((files => [{name: inputValue}, ...files]));
-                setInputValue("");
-            }
-        } 
+        // if(!userPremium){
+        //     // stuff
+        // }
+        if(inputValue.trim().length > 2) {
+            setFiles((files => [{name: inputValue}, ...files]));
+            setInputValue("");
+        }
+        
         
     }
 
