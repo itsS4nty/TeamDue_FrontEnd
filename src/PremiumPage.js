@@ -1,21 +1,18 @@
 import React, {useState} from 'react';
-import ReactDOM from 'react-dom';
-import CreateFile from './CreateFile';
+import { AddFile } from './components/AddFile';
+import FileGrid from './components/FileGrid';
 
 const PremiumPage = () => {
-    const [fileNum, setFileNum] = useState(1);
-
-    const addFile = () => {
-       ReactDOM.render(<CreateFile/>, document.getElementById("createFile"));
-    }
+    const [file, setFile] = useState(['Archivo']);
 
     return (
         <>
            <h1>Tus archivos</h1>
            <div id='createFile'>
                <p>Crear archivo</p>
-                <button className="plus-button plus-button--large" onClick={addFile}></button>
+                <AddFile setFiles={setFile} />
            </div>
+           {file.map(fil => <FileGrid key={fil.name} file={fil.name} />)}
         </>
     );
         
