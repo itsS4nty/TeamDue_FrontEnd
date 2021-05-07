@@ -1,6 +1,5 @@
 import React from 'react';
 import { Board } from './board/Board';
-// import './container.css';
 
 export const Container = (props) => {
     return (
