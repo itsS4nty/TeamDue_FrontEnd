@@ -52,7 +52,7 @@ export const Board = (props) => {
         /* Drawing on Paint App */
         ctx.lineWidth = 5;
         ctx.lineJoin = 'round';
-        ctx.lineCap = 'round';
+        ctx.lineCap = 'roundd';
         ctx.strokeStyle = 'blue';
         canvas.addEventListener('mousedown', function(e) {
             canvas.addEventListener('mousemove', onPaint, false);
@@ -83,7 +83,7 @@ export const Board = (props) => {
     }
     return (
         <div id="sketch" className="sketch">
-            <canvas className="board" id="board"></canvas>
+            <canvas onContextMenu={(e) => e.preventDefault()} className="board" id="board"></canvas>
         </div>
     )
 }
