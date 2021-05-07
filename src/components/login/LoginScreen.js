@@ -31,7 +31,7 @@ export const LoginScreen = (props) => {
 
 
     return (
-        <div>
+        <div id="principal-container">
             <h1>Login Screen</h1>
             <form onSubmit={handleSubmit}>
                 <input type="text" placeholder="Usuario" value={data.form.usuario} name="usuario" onChange={handleOnChange} />

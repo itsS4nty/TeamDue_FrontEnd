@@ -25,7 +25,7 @@ export const ResgisterScreen = (props) => {
         })
     }
     return (
-        <div>
+        <div id="principal-container">
             <h1>Register Screen</h1>
             <form onSubmit={handleSubmit}>
                 <input type="text" placeholder="Nombre" value={data.form.nombre} name="nombre" onChange={handleOnChange} />
