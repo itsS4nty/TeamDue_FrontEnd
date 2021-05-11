@@ -5,10 +5,6 @@ var oldColor = '#fff';
 var oldSize = 5;
 
 export const Board = ({color, size}) => {
-    const [oldData, setOldData] = useState({
-        color: '#fff',
-        size: 5
-    })
     const [brushData, setBrushData] = useState({
         color: '#000',
         size: 5
@@ -22,7 +18,7 @@ export const Board = ({color, size}) => {
             var canvas = document.querySelector("#board");
             var ctx = canvas.getContext("2d");
             var {moveToX, moveToY, lineToX, lineToY, color, size} = data;
-            changeBrushData(ctx, {color, size}, true);
+            //changeBrushData(ctx, {color, size}, true);
             draw(ctx, moveToX, moveToY, lineToX, lineToY, true);
         });
         /*socket.on("draw-data", (data) => {
@@ -67,7 +63,6 @@ export const Board = ({color, size}) => {
         ctx.strokeStyle = brushData.color;
         canvas.addEventListener('mousedown', function(e) {
             canvas.addEventListener('mousemove', onPaint, false);
-            console.log('object')
         }, false);
     
         canvas.addEventListener('mouseup', function() {
