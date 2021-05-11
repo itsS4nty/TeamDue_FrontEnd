@@ -1,8 +1,14 @@
 import React, { useEffect, useRef, useState } from 'react';
 import io from 'socket.io-client';
 const socket = io.connect('http://51.38.225.18:8080');
+var oldColor = '#fff';
+var oldSize = 5;
 
 export const Board = ({color, size}) => {
+    const [oldData, setOldData] = useState({
+        color: '#fff',
+        size: 5
+    })
     const [brushData, setBrushData] = useState({
         color: '#000',
         size: 5
@@ -15,20 +21,21 @@ export const Board = ({color, size}) => {
         socket.on("canvas-data", (data) => {
             var canvas = document.querySelector("#board");
             var ctx = canvas.getContext("2d");
-            var {moveToX, moveToY, lineToX, lineToY} = data;
-            draw(ctx, moveToX, moveToY, lineToX, lineToY);
+            var {moveToX, moveToY, lineToX, lineToY, color, size} = data;
+            changeBrushData(ctx, {color, size}, true);
+            draw(ctx, moveToX, moveToY, lineToX, lineToY, true);
         });
-        socket.on("draw-data", (data) => {
+        /*socket.on("draw-data", (data) => {
             setBrushData(data);
-        })
+        })*/
     });
     useEffect(() => {
         setBrushData({
             color: color,
             size: size
         });
-        socket.emit("draw-data", brushData);
-    },[color, size, brushData]);
+        //socket.emit("draw-data", brushData);
+    },[color, size]);
     useEffect(() => {
         var canvas = document.querySelector('#board');
         var ctx = canvas.getContext('2d');
@@ -60,6 +67,7 @@ export const Board = ({color, size}) => {
         ctx.strokeStyle = brushData.color;
         canvas.addEventListener('mousedown', function(e) {
             canvas.addEventListener('mousemove', onPaint, false);
+            console.log('object')
         }, false);
     
         canvas.addEventListener('mouseup', function() {
@@ -72,22 +80,31 @@ export const Board = ({color, size}) => {
                 moveToX: lX,
                 moveToY: lY,
                 lineToX: mX,
-                lineToY: mY
+                lineToY: mY,
+                color: ctx.strokeStyle,
+                size: ctx.lineWidth
             }
-            draw(ctx, lX, lY, mX, mY);
             sendCtxData(movements);
+            draw(ctx, lX, lY, mX, mY, false);
         };
     }
-    const draw = (ctx, lineToX, lineToY, moveToX, moveToY) => {
+    const draw = (ctx, lineToX, lineToY, moveToX, moveToY, remote = false) => {
+        if(!remote) {
+            changeBrushData(ctx, {color: oldColor, size: oldSize});
+        }
         ctx.beginPath();
         ctx.moveTo(moveToX, moveToY);
         ctx.lineTo(lineToX, lineToY);
         ctx.closePath();
         ctx.stroke();
     }
-    const changeBrushData = (ctx, {color, size}) => {
+    const changeBrushData = (ctx, {color, size}, remote = false) => {
         ctx.lineWidth = size;
         ctx.strokeStyle = color;
+        if(!remote) {
+            oldColor = color;
+            oldSize = size;
+        }
     }
     return (
         <div id="sketch" className="sketch">
