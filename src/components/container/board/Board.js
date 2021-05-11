@@ -1,13 +1,12 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import io from 'socket.io-client';
 const socket = io.connect('http://51.38.225.18:8080');
 
-export const Board = (props) => {
-    const [brushData, setBrushData] = useState([{
-        color: 'black',
-        size: '5',
-        brushForm: 'round'
-    }]);
+export const Board = ({color, size}) => {
+    const [brushData, setBrushData] = useState({
+        color: '#000',
+        size: 5
+    })
     useEffect(() => {
         drawOnCanvas();
     }, []);
@@ -18,18 +17,23 @@ export const Board = (props) => {
             var ctx = canvas.getContext("2d");
             var {moveToX, moveToY, lineToX, lineToY} = data;
             draw(ctx, moveToX, moveToY, lineToX, lineToY);
-            /*image.onload= () => {
-                ctx.drawImage(image, 0, 0);
-            }
-            image.src = data;*/
         });
-    })
-    const handleBrushChange = (e) => {
-        setBrushData({
-            ...brushData,
-            [e.target.name]: e.target.value
+        socket.on("draw-data", (data) => {
+            setBrushData(data);
         })
-    }
+    });
+    useEffect(() => {
+        setBrushData({
+            color: color,
+            size: size
+        });
+        socket.emit("draw-data", brushData);
+    },[color, size, brushData]);
+    useEffect(() => {
+        var canvas = document.querySelector('#board');
+        var ctx = canvas.getContext('2d');
+        changeBrushData(ctx, brushData);
+    }, [brushData])
     const sendCtxData = (ctxData) => {
         socket.emit("canvas-data", ctxData);
     }
@@ -50,10 +54,10 @@ export const Board = (props) => {
             mouse.y = e.pageY - this.offsetTop;
         }, false);
         /* Drawing on Paint App */
-        ctx.lineWidth = 5;
+        ctx.lineWidth = brushData.size;
         ctx.lineJoin = 'round';
-        ctx.lineCap = 'roundd';
-        ctx.strokeStyle = 'blue';
+        ctx.lineCap = 'round';
+        ctx.strokeStyle = brushData.color;
         canvas.addEventListener('mousedown', function(e) {
             canvas.addEventListener('mousemove', onPaint, false);
         }, false);
@@ -80,6 +84,10 @@ export const Board = (props) => {
         ctx.lineTo(lineToX, lineToY);
         ctx.closePath();
         ctx.stroke();
+    }
+    const changeBrushData = (ctx, {color, size}) => {
+        ctx.lineWidth = size;
+        ctx.strokeStyle = color;
     }
     return (
         <div id="sketch" className="sketch">
