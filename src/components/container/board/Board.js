@@ -85,7 +85,8 @@ export const Board = ({color, size}) => {
     }
     const draw = (ctx, lineToX, lineToY, moveToX, moveToY, remote = false) => {
         if(!remote) {
-          //  changeBrushData(ctx, {color: oldColor, size: oldSize});
+          changeBrushData(ctx, {color: oldColor, size: oldSize});
+        } else {
         }
         ctx.beginPath();
         ctx.moveTo(moveToX, moveToY);
@@ -93,16 +94,17 @@ export const Board = ({color, size}) => {
         ctx.closePath();
         ctx.stroke();
     }
-    const changeBrushData = (ctx, {color, size}, remote) => {
+    const changeBrushData = (ctx, {color, size}, remote = false) => {
         ctx.lineWidth = size;
         ctx.strokeStyle = color;
         if(!remote) {
             oldColor = color;
             oldSize = size;
         } else { 
-            console.log('Estoy en remoto');
-            console.log(oldColor, color);
+            
         }
+        //console.log('Estoy en remoto');
+        console.log(oldColor, color, remote, 'changeBrushData');
     }
     return (
         <div id="sketch" className="sketch">
