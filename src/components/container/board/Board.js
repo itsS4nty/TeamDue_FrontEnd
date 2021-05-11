@@ -18,7 +18,7 @@ export const Board = ({color, size}) => {
             var canvas = document.querySelector("#board");
             var ctx = canvas.getContext("2d");
             var {moveToX, moveToY, lineToX, lineToY, color, size} = data;
-            //changeBrushData(ctx, {color, size}, true);
+            changeBrushData(ctx, {color, size}, true);
             draw(ctx, moveToX, moveToY, lineToX, lineToY, true);
         });
         /*socket.on("draw-data", (data) => {
@@ -85,7 +85,7 @@ export const Board = ({color, size}) => {
     }
     const draw = (ctx, lineToX, lineToY, moveToX, moveToY, remote = false) => {
         if(!remote) {
-            changeBrushData(ctx, {color: oldColor, size: oldSize});
+          //  changeBrushData(ctx, {color: oldColor, size: oldSize});
         }
         ctx.beginPath();
         ctx.moveTo(moveToX, moveToY);
@@ -93,12 +93,15 @@ export const Board = ({color, size}) => {
         ctx.closePath();
         ctx.stroke();
     }
-    const changeBrushData = (ctx, {color, size}, remote = false) => {
+    const changeBrushData = (ctx, {color, size}, remote) => {
         ctx.lineWidth = size;
         ctx.strokeStyle = color;
         if(!remote) {
             oldColor = color;
             oldSize = size;
+        } else { 
+            console.log('Estoy en remoto');
+            console.log(oldColor, color);
         }
     }
     return (
