@@ -6,7 +6,8 @@ export const SesionScreen = (props) => {
         createRoom: '',
         joinRoom: ''
     });
-    const handleOnCreateRoom = () => {
+    const handleOnCreateRoom = (e) => {
+        e.preventDefault();
         socket.emit("new-room", roomId.createRoom);
         props.history.push('/board');
     }
@@ -16,7 +17,8 @@ export const SesionScreen = (props) => {
             [e.target.name]: e.target.value
         });
     }
-    const handleJoinRoom = () => {
+    const handleJoinRoom = (e) => {
+        e.preventDefault();
         socket.emit("peticionSala-enviada", roomId.joinRoom);
     }
     useEffect(() => {
@@ -49,7 +51,7 @@ export const SesionScreen = (props) => {
                         <input autocomplete="off" name="hidden" type="text" hidden />
                         <input type="text" name='joinRoom' className="inputRoom" value={roomId.joinRoom} placeholder="Introduce el ID de la sala" onChange={handleRoomIdChange} />
                         <button type="input" className="btnRoom animate" value="Unirse a sala" onClick={handleJoinRoom}>Unirse a sala</button>
-                    </form>
+                        </form> 
                 </div>
             </div>
         </div>
