@@ -2,14 +2,14 @@ Crear una sesión, input con nombre.
 Para unirse a una sesión, meter el nombre de la sala.
 Alert() para aceptar y rechazar.
 Nombre de los canales:
-    · Crear sala: socket.emit("new-room", nombreSala);
-    · Comprobación sala creada: socket.on("sala-creada", string);
-    · Posibles errores: socket.on("err", string);
-    · Petición para unirse a la sala: socket.on("peticion-recibida", {idPeticion, roomKey});
-    · Si se acepta la entrada: socket.emit("aceptado-room", {idPeticion, roomKey});
-    · Si no se acepta la entrada: socket.emit("rechazado-room", {idPeticion, roomKey});
-    · Para unirse a la sala: socket.emit("peticionSala-enviada", nombreSala);
-    · Se acepta la petición de entrada: socket.on("peticionAceptada", dataU);
-    · Despues de aceptar la entrada: socket.emit("join-room", dataU);
-    · Se rechaza la petición de entrada: socket.on("peticionRechazada", data);
-    · Cuando se entra a la sala: socket.on("entrando-sala", data);
+    · Crear sala: socket.emit("new-room", nombreSala); -> SesionScreen
+    · Comprobación sala creada: socket.on("sala-creada", string); -> SesionScreen
+    · Posibles errores: socket.on("err", string); -> SesionScreen && Board
+    · Petición para unirse a la sala: socket.on("peticion-recibida", {idPeticion, roomKey}); -> Board
+    · Si se acepta la entrada: socket.emit("aceptado-room", {idPeticion, roomKey}); -> Board
+    · Si no se acepta la entrada: socket.emit("rechazado-room", {idPeticion, roomKey}); -> Board
+    · Para unirse a la sala: socket.emit("peticionSala-enviada", nombreSala); -> SesionScreen
+    · Se acepta la petición de entrada: socket.on("peticionAceptada", dataU); -> SesionScreen
+    · Despues de aceptar la entrada: socket.emit("join-room", dataU); -> SesionScreen (?)
+    · Se rechaza la petición de entrada: socket.on("peticionRechazada", data); -> SesionScreen
+    · Cuando se entra a la sala: socket.on("entrando-sala", data); -> SesionScreen (?)

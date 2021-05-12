@@ -4,6 +4,9 @@ html, body {
   font-size: 1.3rem;
   background-color: #21232A;
 }
+h1 {
+  text-align: center;
+}
 #principal-container {
   padding: 70px;
 }
@@ -38,3 +41,75 @@ html, body {
   width: 100%;
   height: 100%;
 }
+/* SESION PAGE */
+#sesion-container {
+  display: inline-block;
+  position: relative;
+  width: 100%;
+}
+#create-room {
+  position:fixed;
+  text-align:center;
+  width:40%;
+  height: 80%;
+}
+#join-room {
+  position:fixed;
+  text-align:center;
+  right: 0px;
+  width:40%;
+  height: 80%;
+}
+.data {
+  margin: 0;
+  position: absolute;
+  top: 40%;
+  left: 50%;
+  -ms-transform: translate(-50%, -50%);
+  transform: translate(-50%, -50%);
+}
+
+.animate {
+	transition: all 0.1s;
+	-webkit-transition: all 0.1s;
+}
+
+.btnRoom {
+  border: none;
+  outline: none;
+	position: relative;
+	padding: 10px 40px;
+  margin: 0px 10px 10px 0px;
+	border-radius: 3px;
+	font-family: 'Lato', sans-serif;
+	font-size: 18px;
+	color: #FFF;
+	text-decoration: none;	
+  background-color: #3498db;
+	border-bottom: 5px solid #2980B9;
+	text-shadow: 0px -2px #2980B9;
+}
+.btnRoom:active {
+	transform: translate(0px,5px);
+  -webkit-transform: translate(0px,5px);
+	border-bottom: 1px solid;
+}
+.inputRoom {
+  border-style: none;
+  background: transparent;
+  outline: none;
+  padding: 0;
+  background: none;
+  border: none;
+  outline: none;
+  flex-grow: 1;
+  color: #BFD2FF;
+  font-size: 1.8rem;
+  line-height: 2.4rem;
+  vertical-align: middle;
+}
+.inputRoom::-webkit-input-placeholder {
+  color: #7881A1;
+}
+
+

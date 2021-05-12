@@ -1,6 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import io from 'socket.io-client';
-const socket = io.connect('http://51.38.225.18:8080');
+import {socket} from '../../../helpers/createSocket';
 var oldColor = '#fff';
 var oldSize = 5;
 
@@ -18,9 +17,16 @@ export const Board = ({color, size}) => {
             var canvas = document.querySelector("#board");
             var ctx = canvas.getContext("2d");
             var {moveToX, moveToY, lineToX, lineToY, color, size} = data;
-            changeBrushData(ctx, {color, size}, true);
-            draw(ctx, moveToX, moveToY, lineToX, lineToY, true);
+            // changeBrushData(ctx, {color, size}, true);
+            draw(ctx, moveToX, moveToY, lineToX, lineToY, true, color, size);
         });
+        socket.on("peticion-recibida", (data) =>{
+            if (window.confirm("El socket con id " + data.idPeticion + " te ha enviado una peticion para entrar en la sala: " + data.roomKey)) {
+                socket.emit('aceptado-room', data);
+            } else {
+                socket.emit('rechazado-room', data);
+            }
+        })
         /*socket.on("draw-data", (data) => {
             setBrushData(data);
         })*/
@@ -30,8 +36,7 @@ export const Board = ({color, size}) => {
             color: color,
             size: size
         });
-        //socket.emit("draw-data", brushData);
-    },[color, size]);
+    }, [color, size]);
     useEffect(() => {
         var canvas = document.querySelector('#board');
         var ctx = canvas.getContext('2d');
@@ -83,14 +88,21 @@ export const Board = ({color, size}) => {
             draw(ctx, lX, lY, mX, mY, false);
         };
     }
-    const draw = (ctx, lineToX, lineToY, moveToX, moveToY, remote = false) => {
+    const draw = (ctx, lineToX, lineToY, moveToX, moveToY, remote = false, color = undefined, size = undefined) => {
+        var colorToDraw, sizeToDraw;
         if(!remote) {
-          changeBrushData(ctx, {color: oldColor, size: oldSize});
+            colorToDraw = oldColor;
+            sizeToDraw = oldSize;
         } else {
+            colorToDraw = color;
+            sizeToDraw = size;
         }
         ctx.beginPath();
         ctx.moveTo(moveToX, moveToY);
         ctx.lineTo(lineToX, lineToY);
+        // changeBrushData(ctx, {color: colorToDraw, size: sizeToDraw});
+        ctx.lineWidth = sizeToDraw;
+        ctx.strokeStyle = colorToDraw;
         ctx.closePath();
         ctx.stroke();
     }
@@ -100,11 +112,7 @@ export const Board = ({color, size}) => {
         if(!remote) {
             oldColor = color;
             oldSize = size;
-        } else { 
-            
         }
-        //console.log('Estoy en remoto');
-        console.log(oldColor, color, remote, 'changeBrushData');
     }
     return (
         <div id="sketch" className="sketch">

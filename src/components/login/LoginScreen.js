@@ -21,7 +21,7 @@ export const LoginScreen = (props) => {
         axios.post(url, data.form).then((response) => {
             console.log(response);
             console.log(response.status);
-            if(response.status == 200) {
+            if(response.status === 200) {
                props.history.push('/files');
                cookies.set('premium', response.data.premium);
 
