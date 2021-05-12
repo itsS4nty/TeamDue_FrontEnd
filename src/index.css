@@ -88,9 +88,9 @@ h1 {
   /* background-color: #3498db;
 	border-bottom: 5px solid #2980B9;
 	text-shadow: 0px -2px #2980B9; */
-  background-color: #335266;
-	border-bottom: 5px solid #115886;
-	text-shadow: 0px -2px #115886;
+  background-color: #01497c;
+	border-bottom: 5px solid #013a63;
+	text-shadow: 0px -2px #013a63;
 }
 .btnRoom:active {
 	transform: translate(0px,5px);

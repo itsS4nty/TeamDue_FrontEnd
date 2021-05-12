@@ -32,7 +32,7 @@ export const SesionScreen = (props) => {
 
     return (
         <div id="sesion-container">
-            <h1>Que quieres hacer</h1>
+            <h1>¿Qué quieres hacer?</h1>
             <div id="create-room">
                 <div class="data">
                     <form autocomplete="off" method="" action="">
