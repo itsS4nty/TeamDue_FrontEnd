@@ -1,5 +1,8 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {socket} from '../../../helpers/createSocket';
+import { ToastContainer, Slide } from 'react-toastify';
+import {showToast} from '../../../helpers/toast';
+import { SessionRequest } from '../../toasts/sessionRequest/SessionRequest';
 var oldColor = '#fff';
 var oldSize = 5;
 
@@ -21,16 +24,16 @@ export const Board = ({color, size}) => {
             draw(ctx, moveToX, moveToY, lineToX, lineToY, true, color, size);
         });
         socket.on("peticion-recibida", (data) =>{
-            if (window.confirm("El socket con id " + data.idPeticion + " te ha enviado una peticion para entrar en la sala: " + data.roomKey)) {
-                socket.emit('aceptado-room', data);
-            } else {
-                socket.emit('rechazado-room', data);
-            }
+            var {idPeticion, roomKey} = data;
+            showToast("info", <SessionRequest idPeticion={idPeticion} roomKey={roomKey}/>)
+            
+            // if (window.confirm("El socket con id " + data.idPeticion + " te ha enviado una peticion para entrar en la sala: " + data.roomKey)) {
+            //     socket.emit('aceptado-room', data);
+            // } else {
+            //     socket.emit('rechazado-room', data);
+            // }
         })
-        /*socket.on("draw-data", (data) => {
-            setBrushData(data);
-        })*/
-    });
+    }, []);
     useEffect(() => {
         setBrushData({
             color: color,
@@ -117,6 +120,19 @@ export const Board = ({color, size}) => {
     return (
         <div id="sketch" className="sketch">
             <canvas onContextMenu={(e) => e.preventDefault()} className="board" id="board"></canvas>
+            <ToastContainer
+                position="bottom-center"
+                autoClose={5000}
+                hideProgressBar={false}
+                newestOnTop={false}
+                closeOnClick={false}
+                rtl={false}
+                pauseOnFocusLoss={false}
+                draggable={false}
+                pauseOnHover={false}
+                transition={Slide}
+                toastClassName="toastClass"
+            />
         </div>
     )
 }

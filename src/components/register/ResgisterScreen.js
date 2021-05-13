@@ -19,7 +19,7 @@ export const ResgisterScreen = (props) => {
         axios.post(url, data.form).then((response) => {
             console.log(response);
             let {status} = response;
-            if(status == 201) {
+            if(status === 201) {
                 props.history.push('/login');
             }
         })

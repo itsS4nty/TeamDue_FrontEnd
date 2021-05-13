@@ -114,5 +114,14 @@ h1 {
 .inputRoom::-webkit-input-placeholder {
   color: #7881A1;
 }
-
-
+/* TOAST STYLE */
+.toastClass {
+  font-size: 16px;
+}
+.cleanBtn {
+  cursor: pointer;
+  border: none;
+  outline: none;
+  background-color: none;
+  background: none;
+}
