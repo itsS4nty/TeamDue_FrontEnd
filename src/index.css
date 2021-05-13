@@ -75,6 +75,7 @@ h1 {
 }
 
 .btnRoom {
+  cursor: pointer;
   border: none;
   outline: none;
 	position: relative;
@@ -118,10 +119,16 @@ h1 {
 .toastClass {
   font-size: 16px;
 }
+.toastRequestText {
+  text-align: justify;
+}
 .cleanBtn {
   cursor: pointer;
   border: none;
   outline: none;
   background-color: none;
   background: none;
+}
+.center-horizontal {
+  text-align: center;
 }

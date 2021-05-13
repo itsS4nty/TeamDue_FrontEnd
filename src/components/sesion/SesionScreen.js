@@ -5,10 +5,15 @@ import {showToast} from '../../helpers/toast';
 export const SesionScreen = (props) => {
     const [roomId, setRoomId] = useState({
         createRoom: '',
-        joinRoom: ''
+        joinRoom: '',
+        user: 'prueba' 
     });
     const handleOnCreateRoom = (e) => {
         e.preventDefault();
+        if(roomId.createRoom.trim().length == 0) {
+            showToast('err', 'El nombre de la sala no puede estar vacío');
+            return;
+        }
         socket.emit("new-room", roomId.createRoom);
     }
     const handleRoomIdChange = (e) => {
@@ -20,7 +25,10 @@ export const SesionScreen = (props) => {
     const handleJoinRoom = (e) => {
         e.preventDefault();
         showToast('info', "Petición enviada...");
-        socket.emit("peticionSala-enviada", roomId.joinRoom);
+        socket.emit("peticionSala-enviada", {
+            room: roomId.joinRoom,
+            user: roomId.user
+        });
     }
     useEffect(() => {
         if(!socket) return;

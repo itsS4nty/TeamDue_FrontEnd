@@ -7,6 +7,7 @@ var oldColor = '#fff';
 var oldSize = 5;
 
 export const Board = ({color, size}) => {
+    const [option, setOption] = useState('');
     const [brushData, setBrushData] = useState({
         color: '#000',
         size: 5
@@ -24,8 +25,8 @@ export const Board = ({color, size}) => {
             draw(ctx, moveToX, moveToY, lineToX, lineToY, true, color, size);
         });
         socket.on("peticion-recibida", (data) =>{
-            var {idPeticion, roomKey} = data;
-            showToast("info", <SessionRequest idPeticion={idPeticion} roomKey={roomKey}/>)
+            var {idPeticion, nombreUsuario, roomKey} = data;
+            showToast("request", <SessionRequest idPeticion={idPeticion} nombreUsuario={nombreUsuario} roomKey={roomKey}/>)
             
             // if (window.confirm("El socket con id " + data.idPeticion + " te ha enviado una peticion para entrar en la sala: " + data.roomKey)) {
             //     socket.emit('aceptado-room', data);
@@ -119,19 +120,28 @@ export const Board = ({color, size}) => {
     }
     return (
         <div id="sketch" className="sketch">
+            <div>
+                <input type='radio' id='free' checked={option === 'free'} onChange={() => setOption('free')} />
+                <label htmlFor='free'>Free</label>
+                <input type='radio' id='line' checked={option === 'line'} onChange={() => setOption('line')} />
+                <label htmlFor='line'>Line</label>
+                <input type='radio' id='rectangle' checked={option === 'rectangle'} onChange={() => setOption('rectangle')} />
+                <label htmlFor='rectangle'>Rectangle</label>
+            </div>
             <canvas onContextMenu={(e) => e.preventDefault()} className="board" id="board"></canvas>
             <ToastContainer
-                position="bottom-center"
+                position="top-center"
                 autoClose={5000}
                 hideProgressBar={false}
                 newestOnTop={false}
-                closeOnClick={false}
                 rtl={false}
                 pauseOnFocusLoss={false}
                 draggable={false}
                 pauseOnHover={false}
                 transition={Slide}
                 toastClassName="toastClass"
+                closeOnClick
+                draggable
             />
         </div>
     )
