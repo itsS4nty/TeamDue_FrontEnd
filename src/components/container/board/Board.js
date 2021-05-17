@@ -41,9 +41,9 @@ export const Board = ({color, size, option:opt}) => {
     // }, [elements])
     useEffect(() => {
         if(!socket) return;
+        var canvas = document.querySelector("#board");
+        var ctx = canvas.getContext("2d");
         socket.on("canvas-data", (data) => {
-            var canvas = document.querySelector("#board");
-            var ctx = canvas.getContext("2d");
             var {moveToX, moveToY, lineToX, lineToY, color, size} = data;
             // changeBrushData(ctx, {color, size}, true);
             draw(ctx, moveToX, moveToY, lineToX, lineToY, true, color, size);
@@ -57,7 +57,26 @@ export const Board = ({color, size, option:opt}) => {
             // } else {
             //     socket.emit('rechazado-room', data);
             // }
-        })
+        });
+        socket.on("draw-line", ({x1, y1, x2, y2}) => {
+            ctx.beginPath();
+                ctx.moveTo(x1, y1);
+                ctx.lineTo(x2, y2);
+                // changeBrushData(ctx, {color: colorToDraw, size: sizeToDraw});
+                // ctx.lineWidth = sizeToDraw;
+                // ctx.strokeStyle = colorToDraw;
+                ctx.closePath();
+                ctx.stroke();
+        });
+        socket.on("draw-rect", ({x1, y1, x2, y2}) => {
+            ctx.moveTo(x1, y1);
+            ctx.strokeRect(x1, y1, x2, y2);
+            // changeBrushData(ctx, {color: colorToDraw, size: sizeToDraw});
+            // ctx.lineWidth = sizeToDraw;
+            // ctx.strokeStyle = colorToDraw;
+            ctx.closePath();
+            ctx.stroke();
+        });
     }, []);
     useEffect(() => {
         setBrushData({
@@ -65,7 +84,7 @@ export const Board = ({color, size, option:opt}) => {
             size: size
         });
         option = opt;
-        if(option === 'line') {
+        if(option === 'line' || option === 'rectangle') {
             drawLine = true;
             cross = true;
         } else {
@@ -131,15 +150,7 @@ export const Board = ({color, size, option:opt}) => {
         };
     }
     const draw = (ctx, lineToX, lineToY, moveToX, moveToY, remote = false, color = undefined, size = undefined) => {
-        if(option === 'free') {
-            freeDraw(ctx, lineToX, lineToY, moveToX, moveToY, remote, color, size);
-        } else if(option === 'line') {
-            // stuff...
-            lineDraw(lineToX, lineToY, moveToX, moveToY);
-        } else if(option === 'rectangle') {
-            // stuff...
-        }
-        
+        freeDraw(ctx, lineToX, lineToY, moveToX, moveToY, remote, color, size);
     }
     const changeBrushData = (ctx, {color, size}, remote = false) => {
         ctx.lineWidth = size;
@@ -167,6 +178,13 @@ export const Board = ({color, size, option:opt}) => {
         ctx.closePath();
         ctx.stroke();
     }
+    const handleOnClick = (e) => {
+        if(option === 'line') {
+            lineDraw(e);
+        } else if(option === 'rectangle') {
+            lineRect(e);
+        }
+    }
     const lineDraw = (e) => {
         var {x1, y1} = lineCoordinates;
         if(drawLine) {
@@ -180,14 +198,21 @@ export const Board = ({color, size, option:opt}) => {
                     y1: e.clientY - rect.top
                 });
             } else {
+                var dataToSend = {
+                    x1: x1,
+                    y1: y1,
+                    x2: e.clientX - rect.left,
+                    y2: e.clientY - rect.top
+                };
                 ctx.beginPath();
                 ctx.moveTo(x1, y1);
-                ctx.lineTo(e.clientX - rect.left, e.clientY - rect.top);
+                ctx.lineTo(dataToSend.x2, dataToSend.y2);
                 // changeBrushData(ctx, {color: colorToDraw, size: sizeToDraw});
                 // ctx.lineWidth = sizeToDraw;
                 // ctx.strokeStyle = colorToDraw;
                 ctx.closePath();
                 ctx.stroke();
+                socket.emit('draw-line', dataToSend);
                 setLineCoordinates({
                     ...lineCoordinates,
                     x1: undefined,
@@ -211,13 +236,20 @@ export const Board = ({color, size, option:opt}) => {
                 });
             } else {
                 ctx.beginPath();
+                var dataToSend = {
+                    x1: x1,
+                    y1: y1,
+                    x2: e.clientX - rect.left - x1,
+                    y2: e.clientY - rect.top - y1
+                };
                 ctx.moveTo(x1, y1);
-                ctx.strokeRect(x1, y1, e.clientX - rect.left - x1, e.clientY - rect.top - y1);
+                ctx.strokeRect(x1, y1, dataToSend.x2, dataToSend.y2);
                 // changeBrushData(ctx, {color: colorToDraw, size: sizeToDraw});
                 // ctx.lineWidth = sizeToDraw;
                 // ctx.strokeStyle = colorToDraw;
                 ctx.closePath();
                 ctx.stroke();
+                socket.emit('draw-rect', dataToSend);
                 setLineCoordinates({
                     ...lineCoordinates,
                     x1: undefined,
@@ -230,7 +262,7 @@ export const Board = ({color, size, option:opt}) => {
     return (
         <div id="sketch" className="sketch">
             {/*<canvas onContextMenu={(e) => e.preventDefault()} className="board" id="boardLineRect"></canvas>*/}
-            <canvas onContextMenu={(e) => e.preventDefault()} className={`board ${cross ? "crosshairCursor" : ""}`} id="board" onClick={lineRect}></canvas>
+            <canvas onContextMenu={(e) => e.preventDefault()} className={`board ${cross ? "crosshairCursor" : ""}`} id="board" onClick={handleOnClick}></canvas>
             <ToastContainer
                 position="top-center"
                 autoClose={5000}
