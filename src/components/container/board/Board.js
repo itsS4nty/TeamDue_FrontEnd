@@ -11,7 +11,7 @@ var option = 'free';
 var drawLine = false;
 var cross = false;
 const generator = rough.generator();
-const sessionId = Math.floor(Math.random() * 1001);
+var sessionId = Math.floor(Math.random() * 1001)
 console.log(sessionId);
 
 const createElement = (x1, y1, x2, y2) => {
@@ -29,6 +29,7 @@ export const Board = ({color, size, option:opt}) => {
         size: 5
     })
     useEffect(() => {
+        sessionId = sessionId.toString(); 
         drawOnCanvas();
     }, []);
     // useEffect(() => {
@@ -44,14 +45,14 @@ export const Board = ({color, size, option:opt}) => {
     // }, [elements])
     useEffect(() => {
         if(!socket) return;
-        var canvas = document.querySelector("#board");
+        var canvas = document.getElementById(sessionId);
         var rCanvas = rough.canvas(canvas);
         var ctx = canvas.getContext("2d");
         socket.on("canvas-data", (data) => {
             if(data.sessionId !== sessionId) {
                 var {moveToX, moveToY, lineToX, lineToY, color, size} = data;
                 // changeBrushData(ctx, {color, size}, true);
-                draw(ctx, moveToX+100, moveToY+100, lineToX+100, lineToY+100, true, color, size);
+                draw(ctx, moveToX, moveToY, lineToX, lineToY, true, color, size);
             }
         });
         socket.on("peticion-recibida", (data) =>{
@@ -82,7 +83,7 @@ export const Board = ({color, size, option:opt}) => {
         }
     }, [color, size, opt]);
     useEffect(() => {
-        var canvas = document.querySelector('#board');
+        var canvas = document.getElementById(sessionId);
         var ctx = canvas.getContext('2d');
         changeBrushData(ctx, brushData);
     }, [brushData])
@@ -93,7 +94,7 @@ export const Board = ({color, size, option:opt}) => {
         // var rCanvas = document.getElementById("boardLineRect");
         // var rCtx = rCanvas.getContext("2d");
         // rCtx.clearRect(0, 0, rCanvas.width, rCanvas.height);
-        var canvas = document.querySelector('#board');
+        var canvas = document.getElementById(sessionId);
         var ctx = canvas.getContext('2d');
         // ctx.clearRect(0, 0, canvas.width, canvas.height);
         var sketch = document.querySelector('#sketch');
@@ -265,7 +266,7 @@ export const Board = ({color, size, option:opt}) => {
     return (
         <div id="sketch" className="sketch">
             {/*<canvas onContextMenu={(e) => e.preventDefault()} className="board" id="boardLineRect"></canvas>*/}
-            <canvas onContextMenu={(e) => e.preventDefault()} className={`board ${cross ? "crosshairCursor" : ""}`} id="board" onClick={handleOnClick}></canvas>
+            <canvas onContextMenu={(e) => e.preventDefault()} className={`board ${cross ? "crosshairCursor" : ""}`} id={sessionId} onClick={handleOnClick}></canvas>
             <ToastContainer
                 position="top-center"
                 autoClose={5000}
