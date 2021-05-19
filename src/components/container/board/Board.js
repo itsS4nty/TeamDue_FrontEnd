@@ -70,6 +70,24 @@ export const Board = ({color, size, option:opt, img:image, filter:filterChange, 
             var rect = generator.rectangle(x1, y1, x2, y2, {roughness: roughness, strokeWidth: strokeWidth, stroke: stroke});
             rCanvas.draw(rect);
         });
+        socket.on("background-image", ({image, canvasWH:wh}) => {
+            console.log(image);
+            console.log(sessionId, wh)
+            var canvas = document.getElementById(sessionId);
+            var ctx = canvas.getContext("2d");
+            var background = new Image();
+            background.crossOrigin = "Anonymous";
+            background.src = image;
+            background.onload = () => {
+                ctx.drawImage(background, 0, 0, wh.width, wh.height);
+            }
+        });
+        socket.on("filters", ({customFilter:customRemote, style, filter:filterRemote}) => {
+            console.log(customRemote, style);
+            customFilter = customRemote;
+            imgStyle = style;
+            filter = filterRemote;
+        });
     }, []);
     useEffect(() => {
         customFilter = customFilterChange;
@@ -82,13 +100,13 @@ export const Board = ({color, size, option:opt, img:image, filter:filterChange, 
         imgStyle  = {
             filter: `brightness(${brightness}) saturate(${saturate}%) sepia(${sepia}) blur(${blur}px) contrast(${contrast}%)`
         }
-        socket.emit('filters', {customFilter: customFilter, style: imgStyle});
         setBrushData({
             color: color,
             size: size
         });
         option = opt;
         filter = filterChange;
+        socket.emit('filters', {customFilter: customFilter, style: imgStyle, filter: filter});
         if(option === 'line' || option === 'rectangle') {
             drawLine = true;
             cross = true;
@@ -107,7 +125,7 @@ export const Board = ({color, size, option:opt, img:image, filter:filterChange, 
         background.onload = () => {
             ctx.drawImage(background, 0, 0, canvasWH.width, canvasWH.height);
         }
-        socket.emit('background-image', image);
+        socket.emit('background-image', {image:image, canvasWH: canvasWH});
     }, [image, canvasWH]);
     useEffect(() => {
         var canvas = document.getElementById(sessionId);
