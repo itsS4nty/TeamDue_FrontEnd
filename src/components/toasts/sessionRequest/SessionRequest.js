@@ -1,6 +1,5 @@
 import React from 'react';
 import {socket} from '../../../helpers/createSocket';
-import {GiCheckMark} from 'react-icons/all'
 
 export const SessionRequest = ({idPeticion, nombreUsuario, roomKey}) => {
     // ✅ ✔️❌
