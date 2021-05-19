@@ -1,12 +1,49 @@
+/* FONTS */
+@import url('https://fonts.googleapis.com/css2?family=Gochi+Hand&family=Pattaya&display=swap');
+/* GENERIC STYLES */
 html, body {
   color: white;
-  font-family: Helvetica, Arial , sans-serif;
+  /* font-family: Helvetica, Arial , sans-serif; */
+  font-family: 'Pattaya', sans-serif, 'Gochi Hand', cursive;
   font-size: 1.3rem;
   background-color: #21232A;
 }
 h1 {
   text-align: center;
 }
+#imgUrl {
+  font-family: 'Pattaya', sans-serif, 'Gochi Hand', cursive;
+  font-size: 18px;
+  color: white;
+  background-color: rgba(185, 182, 182, 0.65);
+  border-color: white;
+  border-radius: 5px;
+  height: 22px;
+}
+#imgUrl:focus {
+  outline: none;
+  border-color: white;
+}
+input[type="color"] {
+  cursor: pointer;
+  border: 0;
+  border-radius: 100px;
+  outline: none;
+  background-color: transparent;
+}
+::placeholder {
+  color: white;
+  opacity: .4; 
+}
+:-ms-input-placeholder { 
+  color: white;
+  opacity: .4; 
+}
+::-ms-input-placeholder { 
+  color: white;
+  opacity: .4; 
+}
+/* FILE PAGE */
 #principal-container {
   padding: 70px;
 }
@@ -27,38 +64,49 @@ h1 {
   text-align: center;
 }
 .board-container {
-  width: 90% !important;
-  height: 90% !important;
+  width: 80%;
+  height: 80%;
   margin: 0 auto;
   margin-top: 1%;
   background: white;
 }
+.size-picker h3 {
+  display: inline-block;
+}
+/* .sketch {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
 .sketch > .board {
-  /* position: absolute; */
+  position: absolute;
+  top: 0;
+  left: 0;
+} */
+.sketch > .board {
   width: 100%;
   height: 100%;  
-  /* width: 1200px !important; */
-  /* height: 800px !important; */
-  /* position: absolute;
-  top: 0;
-  left: 0; */
-  /* top: 0;
-  left: 0; */
+}
+.sketch {
+  width: 100%;
+  height: 100%;
 }
 .crosshairCursor {
   cursor: crosshair;
 }
-/* #board {
-  background-color: transparent;
+.filters {
+  margin-right: 50px;
+  margin-top: -50px;
+  float: right;
 }
-#boardLineRect {
-  background-color: transparent;
-} */
-.sketch {
-  
-  /* position: relative; */
-  width: 100%;
-  height: 100%;
+.filters2 {
+  margin-left: 50px;
+  margin-top: -50px;
+  float: left;
+}
+.options {
+  float: left;
+  margin-top: 10px;
 }
 /* SESION PAGE */
 #sesion-container {
@@ -151,3 +199,78 @@ h1 {
 .center-horizontal {
   text-align: center;
 }
+/* FILTERS */
+.grayscale {
+  --webkit-filter: grayscale(1);
+  filter: grayscale(1);
+}
+.invert {
+  --webkit-filter: invert(.9);
+  filter: invert(.9);
+}
+.brightness {
+  --webkit-filter: brightness(.5);
+  filter: brightness(.5);
+}
+.saturation {
+  --webkit-filter: saturate(6);
+  filter: saturate(6);
+}
+.sepia {
+  --webkit-filter: sepia(1);
+  filter: sepia(1);
+}
+.blur {
+  --webkit-filter: blur(5px);
+  filter: blur(5px);
+}
+.contrast {
+  --webkit-filter: contrast(150%);
+  filter: contrast(150%);
+}
+.switch-field input[type=button], .switch-field input[type=radio] {
+	position: absolute !important;
+	clip: rect(0, 0, 0, 0);
+	height: 1px;
+	width: 1px;
+	border: 0;
+	overflow: hidden;
+}
+.switch-field label {
+	background-color: #e4e4e4;
+	color: rgba(0, 0, 0, 0.6);
+	font-size: 14px;
+	line-height: 1;
+	text-align: center;
+	padding: 8px 16px;
+	margin-right: -1px;
+	border: 1px solid rgba(0, 0, 0, 0.2);
+	box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.3), 0 1px rgba(255, 255, 255, 0.1);
+	transition: all 0.1s ease-in-out;
+}
+.switch-field label:hover {
+	cursor: pointer;
+}
+.switch-field input:checked + label {
+	/* background-color: #a5dc86; */
+	background-color: #f3f055;
+	box-shadow: none;
+}
+.switch-field label:first-of-type {
+	border-radius: 4px 0 0 4px;
+}
+.switch-field label:last-of-type {
+	border-radius: 0 4px 4px 0;
+}
+.optionName {
+  font-size: .8rem;
+  color: #878787;
+}
+.test {
+  filter: brightness(1) saturate(100) sepia(0) blur(0px) contrast(123%);
+}
+
+
+
+
+

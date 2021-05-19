@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react';
 import {socket} from '../../../helpers/createSocket';
 import { ToastContainer, Slide } from 'react-toastify';
 import rough from 'roughjs/bundled/rough.esm';
-import nextId from 'react-id-generator';
 import {showToast} from '../../../helpers/toast';
 import { SessionRequest } from '../../toasts/sessionRequest/SessionRequest';
 var oldColor = '#fff';
@@ -10,23 +9,27 @@ var oldSize = 5;
 var option = 'free';
 var drawLine = false;
 var cross = false;
+var filter = '';
+var distortion = 0;
+var brightness = 1, saturate = 100, sepia = 0, blur = 0, contrast = 100, customFilter = false;
+var imgStyle = {
+    filter: `brightness(${brightness}) saturate(${saturate}%) sepia(${sepia}) blur(${blur}px) contrast(${contrast}%)`
+};
 const generator = rough.generator();
 var sessionId = Math.floor(Math.random() * 1001)
-console.log(sessionId);
 
-const createElement = (x1, y1, x2, y2) => {
-    const roughElement = generator.line(x1, y1, x2, y2);
-    return {x1, y1, x2, y2, roughElement};
-}
-
-export const Board = ({color, size, option:opt}) => {
+export const Board = ({color, size, option:opt, img:image, filter:filterChange, brightness:brightnessChange, saturate:saturateChange, sepia:sepiaChange, blur:blurChange, contrast:contrastChange, customFilter:customFilterChange, changeColorDataDropper, distortion:distortionChange}) => {
     const [lineCoordinates, setLineCoordinates] = useState({
         x1: undefined,
         y1: undefined
-    })
+    });
     const [brushData, setBrushData] = useState({
         color: '#000',
         size: 5
+    });
+    const [canvasWH, setCanvasWH] = useState({
+        width: 0,
+        height: 0
     })
     useEffect(() => {
         sessionId = sessionId.toString(); 
@@ -59,21 +62,33 @@ export const Board = ({color, size, option:opt}) => {
             var {idPeticion, nombreUsuario, roomKey} = data;
             showToast("request", <SessionRequest idPeticion={idPeticion} nombreUsuario={nombreUsuario} roomKey={roomKey}/>)
         });
-        socket.on("draw-line", ({x1, y1, x2, y2, strokeWidth, stroke}) => {
-            var line = generator.line(x1, y1, x2, y2, {strokeWidth: strokeWidth, stroke: stroke});
+        socket.on("draw-line", ({x1, y1, x2, y2, strokeWidth, stroke, roughness}) => {
+            var line = generator.line(x1, y1, x2, y2, {roughness: roughness, strokeWidth: strokeWidth, stroke: stroke});
             rCanvas.draw(line);
         });
-        socket.on("draw-rect", ({x1, y1, x2, y2, strokeWidth, stroke}) => {
-            var rect = generator.rectangle(x1, y1, x2, y2, {strokeWidth: strokeWidth, stroke: stroke});
+        socket.on("draw-rect", ({x1, y1, x2, y2, strokeWidth, stroke, roughness}) => {
+            var rect = generator.rectangle(x1, y1, x2, y2, {roughness: roughness, strokeWidth: strokeWidth, stroke: stroke});
             rCanvas.draw(rect);
         });
     }, []);
     useEffect(() => {
+        customFilter = customFilterChange;
+        brightness = brightnessChange;
+        blur = blurChange;
+        contrast = contrastChange;
+        sepia = sepiaChange;
+        saturate = saturateChange;
+        distortion = distortionChange;
+        imgStyle  = {
+            filter: `brightness(${brightness}) saturate(${saturate}%) sepia(${sepia}) blur(${blur}px) contrast(${contrast}%)`
+        }
+        socket.emit('filters', {customFilter: customFilter, style: imgStyle});
         setBrushData({
             color: color,
             size: size
         });
         option = opt;
+        filter = filterChange;
         if(option === 'line' || option === 'rectangle') {
             drawLine = true;
             cross = true;
@@ -81,12 +96,24 @@ export const Board = ({color, size, option:opt}) => {
             cross = false;
             drawLine = false;
         }
-    }, [color, size, opt]);
+        
+    }, [color, size, opt, filterChange, brightnessChange, blurChange, contrastChange, sepiaChange, saturateChange, customFilterChange, distortionChange]);
+    useEffect(() => {
+        var canvas = document.getElementById(sessionId);
+        var ctx = canvas.getContext("2d");
+        var background = new Image();
+        background.crossOrigin = "Anonymous";
+        background.src = image;
+        background.onload = () => {
+            ctx.drawImage(background, 0, 0, canvasWH.width, canvasWH.height);
+        }
+        socket.emit('background-image', image);
+    }, [image, canvasWH]);
     useEffect(() => {
         var canvas = document.getElementById(sessionId);
         var ctx = canvas.getContext('2d');
         changeBrushData(ctx, brushData);
-    }, [brushData])
+    }, [brushData]);
     const sendCtxData = (ctxData) => {
         socket.emit("canvas-data", ctxData);
     }
@@ -101,6 +128,11 @@ export const Board = ({color, size, option:opt}) => {
         var sketch_style = getComputedStyle(sketch);
         canvas.width = parseInt(sketch_style.getPropertyValue('width'));
         canvas.height = parseInt(sketch_style.getPropertyValue('height'));
+        setCanvasWH({
+            ...canvasWH,
+            width: canvas.width,
+            height: canvas.height
+        })
         // canvas.width = canvas.parentNode.offsetWidth;
         // canvas.height = canvas.parentNode.offsetHeight;
         var mouse = {x: 0, y: 0};
@@ -176,13 +208,14 @@ export const Board = ({color, size, option:opt}) => {
             lineDraw(e);
         } else if(option === 'rectangle') {
             rectDraw(e);
+        } else if(option === 'dropper') {
+            getColor(e);
         }
     }
     const lineDraw = (e) => {
         var {x1, y1} = lineCoordinates;
         if(drawLine) {
-            var canvas = document.querySelector('#board');
-            var ctx = canvas.getContext('2d');
+            var canvas = document.getElementById(sessionId);
             var rCanvas = rough.canvas(canvas);
             var rect = canvas.getBoundingClientRect();
             if(x1 === undefined && y1 === undefined) {
@@ -198,19 +231,11 @@ export const Board = ({color, size, option:opt}) => {
                     x2: e.clientX - rect.left,
                     y2: e.clientY - rect.top,
                     strokeWidth: oldSize,
-                    stroke: oldColor
+                    stroke: oldColor,
+                    roughness: distortion
                 };
-                // ctx.beginPath();
-                // ctx.moveTo(x1, y1);
-                // ctx.lineTo(dataToSend.x2, dataToSend.y2);
-                var line = generator.line(x1, y1, dataToSend.x2, dataToSend.y2, {strokeWidth: oldSize, stroke: oldColor});
+                var line = generator.line(x1, y1, dataToSend.x2, dataToSend.y2, {roughness: distortion, strokeWidth: oldSize, stroke: oldColor});
                 rCanvas.draw(line);
-
-                // changeBrushData(ctx, {color: colorToDraw, size: sizeToDraw});
-                // ctx.lineWidth = sizeToDraw;
-                // ctx.strokeStyle = colorToDraw;
-                // ctx.closePath();
-                // ctx.stroke();
                 socket.emit('draw-line', dataToSend);
                 setLineCoordinates({
                     ...lineCoordinates,
@@ -224,7 +249,7 @@ export const Board = ({color, size, option:opt}) => {
     const rectDraw = (e) => {
         var {x1, y1} = lineCoordinates;
         if(drawLine) {
-            var canvas = document.querySelector('#board');
+            var canvas = document.getElementById(sessionId);
             var ctx = canvas.getContext('2d');
             var rCanvas = rough.canvas(canvas);
             var rect = canvas.getBoundingClientRect();
@@ -242,7 +267,8 @@ export const Board = ({color, size, option:opt}) => {
                     x2: e.clientX - rect.left - x1,
                     y2: e.clientY - rect.top - y1,
                     strokeWidth: oldSize,
-                    stroke: oldColor
+                    stroke: oldColor,
+                    roughness: distortion
                 };
                 // ctx.moveTo(x1, y1);
                 // ctx.strokeRect(x1, y1, dataToSend.x2, dataToSend.y2);
@@ -251,8 +277,9 @@ export const Board = ({color, size, option:opt}) => {
                 // ctx.strokeStyle = colorToDraw;
                 // ctx.closePath();
                 // ctx.stroke();
-                var rect = generator.rectangle(x1, y1, dataToSend.x2, dataToSend.y2, {strokeWidth: oldSize, stroke: oldColor});
-                rCanvas.draw(rect);
+                console.log(distortion);
+                var rectDraw = generator.rectangle(x1, y1, dataToSend.x2, dataToSend.y2, {roughness: distortion, strokeWidth: oldSize, stroke: oldColor});
+                rCanvas.draw(rectDraw);
                 socket.emit('draw-rect', dataToSend);
                 setLineCoordinates({
                     ...lineCoordinates,
@@ -263,10 +290,18 @@ export const Board = ({color, size, option:opt}) => {
             }
         }
     }
+    const getColor = (e) => {
+        var canvas = document.getElementById(sessionId);
+        var ctx = canvas.getContext('2d');
+        var rect = canvas.getBoundingClientRect();
+        var colorData = ctx.getImageData(e.clientX - rect.left, e.clientY - rect.top, 1, 1);
+        var {0:r, 1:g, 2:b} = colorData.data;
+        changeColorDataDropper({r, g, b});
+        console.log(r, g, b);
+    }
     return (
         <div id="sketch" className="sketch">
-            {/*<canvas onContextMenu={(e) => e.preventDefault()} className="board" id="boardLineRect"></canvas>*/}
-            <canvas onContextMenu={(e) => e.preventDefault()} className={`board ${cross ? "crosshairCursor" : ""}`} id={sessionId} onClick={handleOnClick}></canvas>
+            <canvas onContextMenu={(e) => e.preventDefault()} className={`board ${filter} ${cross ? "crosshairCursor" : ""}`} style={{filter: customFilter ? imgStyle.filter: ''}} id={sessionId} onClick={handleOnClick}></canvas>
             <ToastContainer
                 position="top-center"
                 autoClose={5000}
