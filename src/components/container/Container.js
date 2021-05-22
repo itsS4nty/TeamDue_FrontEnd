@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
 import { Board } from './board/Board';
+import {cookies} from '../../helpers/createCookies';
 
 export const Container = (props) => {
+    if(!cookies.get('loggedIn')) props.history.push('/login');
     const [showRanges, setShowRanges] = useState(false);
     const [option, setOption] = useState('free');
     const [values, setValues] = useState({

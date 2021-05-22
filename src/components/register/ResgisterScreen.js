@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import axios from 'axios';
 
 export const ResgisterScreen = (props) => {
-    const [data, setData] = useState({form: {nombre: '', apellidos: '', correo: '', password: ''}, error: false, errorMsg: ''});
+    const [data, setData] = useState({form: {nombre: '', apellido1: '', apellido2: '', correo: '', password: ''}, error: false, errorMsg: ''});
     const handleSubmit = (e) => {
         e.preventDefault();
     }
@@ -29,7 +29,8 @@ export const ResgisterScreen = (props) => {
             <h1>Register Screen</h1>
             <form onSubmit={handleSubmit}>
                 <input type="text" placeholder="Nombre" value={data.form.nombre} name="nombre" onChange={handleOnChange} />
-                <input type="text" placeholder="Apellidos" value={data.form.apellidos} name="apellidos" onChange={handleOnChange} />
+                <input type="text" placeholder="Primer apellido" value={data.form.apellidos} name="apellido1" onChange={handleOnChange} />
+                <input type="text" placeholder="Segundo apellido" value={data.form.apellidos} name="apellido2" onChange={handleOnChange} />
                 <input type="email" placeholder="Email" value={data.form.email} name="correo" onChange={handleOnChange} />
                 <input type="text" placeholder="Usuario" value={data.form.usuario} name="usuario" onChange={handleOnChange} />
                 <input type="password" placeholder="Contraseña" value={data.form.password} name="password" onChange={handleOnChange} />

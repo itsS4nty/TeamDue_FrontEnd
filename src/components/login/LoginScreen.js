@@ -1,9 +1,8 @@
 import React, { useState } from 'react';
 import axios from 'axios';
-import Cookies from 'universal-cookie';
+import {cookies} from '../../helpers/createCookies';
 
 export const LoginScreen = (props) => {
-    const cookies = new Cookies();
     const [data, setData] = useState({form: {usuario: "", password:""}, error: false, errorMsg: ""});
     const handleSubmit = (e) => {
         e.preventDefault();
@@ -22,9 +21,10 @@ export const LoginScreen = (props) => {
             console.log(response);
             console.log(response.status);
             if(response.status === 200) {
-               props.history.push('/files');
-               cookies.set('premium', response.data.premium);
-
+                cookies.set('premium', response.data.usuario.premium);
+                cookies.set('loggedIn', true);
+                cookies.set('username', response.data.usuario.usuario);
+                props.history.push('/files');
             }
         })
     }

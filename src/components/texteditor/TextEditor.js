@@ -12,8 +12,9 @@ import {
   Element as SlateElement,
   Text
 } from 'slate';
+import {cookies} from '../../helpers/createCookies';
 
-export const TextEditor = () => {
+export const TextEditor = (props) => {
   const editor = useMemo(() => withReact(createEditor()), [])
   const [value, setValue] = useState([
     {
@@ -34,11 +35,13 @@ export const TextEditor = () => {
     return <Leaf {...props} />
   }, [])
   useEffect(() => {
+    if(!cookies.get('loggedIn')) props.history.push('/login');
     socket.on('new-text', (data) => {
       console.log(data)
       if(data === undefined || data === null) return;
       setValue(data);
     });
+    socket.emit("refresh-page", cookies.get('username'));
   }, [])
   const changeText = (data) => {
     console.log(data)

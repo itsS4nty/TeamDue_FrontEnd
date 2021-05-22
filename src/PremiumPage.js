@@ -1,9 +1,11 @@
 import React, {useState} from 'react';
 import { AddFile } from './components/AddFile';
 import FileGrid from './components/FileGrid';
+import {cookies} from './helpers/createCookies';
 
-const PremiumPage = () => {
+const PremiumPage = (props) => {
     const [file, setFile] = useState(['Archivo']);
+    if(!cookies.get('loggedIn')) props.history.push('/login');
 
     return (
         <div id="principal-container">

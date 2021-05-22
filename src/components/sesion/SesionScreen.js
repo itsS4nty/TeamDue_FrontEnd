@@ -2,7 +2,9 @@ import React, {useEffect, useState} from 'react';
 import {socket} from '../../helpers/createSocket';
 import { ToastContainer, Slide } from 'react-toastify';
 import {showToast} from '../../helpers/toast';
+import {cookies} from '../../helpers/createCookies';
 export const SesionScreen = (props) => {
+    if(!cookies.get('loggedIn')) props.history.push('/login');
     const [roomId, setRoomId] = useState({
         createRoom: '',
         joinRoom: '',
@@ -14,7 +16,7 @@ export const SesionScreen = (props) => {
             showToast('err', 'El nombre de la sala no puede estar vacío');
             return;
         }
-        socket.emit("new-room", roomId.createRoom);
+        socket.emit("new-room", {roomId: roomId.createRoom, usuario: cookies.get('username')});
     }
     const handleRoomIdChange = (e) => {
         setRoomId({
@@ -38,7 +40,7 @@ export const SesionScreen = (props) => {
         });
         socket.on("peticionAceptada", (idRoom) => {
             showToast("ok", "¡Entrando en la sala!")
-            socket.emit("join-room", idRoom);
+            socket.emit("join-room", {roomId: roomId.createRoom, usuario: cookies.get('username')});
             props.history.push('/board');
         });
         socket.on("peticionRechazada", (idRoom) => {

@@ -4,6 +4,7 @@ import { ToastContainer, Slide } from 'react-toastify';
 import rough from 'roughjs/bundled/rough.esm';
 import {showToast} from '../../../helpers/toast';
 import { SessionRequest } from '../../toasts/sessionRequest/SessionRequest';
+import {cookies} from '../../../helpers/createCookies';
 var oldColor = '#fff';
 var oldSize = 5;
 var option = 'free';
@@ -88,6 +89,7 @@ export const Board = ({color, size, option:opt, img:image, filter:filterChange, 
             imgStyle = style;
             filter = filterRemote;
         });
+        socket.emit("refresh-page", cookies.get('username'));
     }, []);
     useEffect(() => {
         customFilter = customFilterChange;
