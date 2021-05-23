@@ -12,12 +12,15 @@ export const SesionScreen = (props) => {
     });
     const handleOnCreateRoom = (e) => {
         e.preventDefault();
-        if(roomId.createRoom.trim().length == 0) {
+        if(roomId.createRoom.trim().length === 0) {
             showToast('err', 'El nombre de la sala no puede estar vacío');
             return;
         }
         console.log(roomId.createRoom);
-        socket.emit("new-room", {roomId: roomId.createRoom, usuario: cookies.get('username')});
+        socket.emit("new-room", {
+            roomId: roomId.createRoom,
+            usuario: cookies.get('username')
+        });
     }
     const handleRoomIdChange = (e) => {
         setRoomId({
