@@ -29,7 +29,7 @@ export const SesionScreen = (props) => {
         e.preventDefault();
         showToast('info', "Petición enviada...");
         socket.emit("peticionSala-enviada", {
-            roomId: roomId.joinRoom,
+            room: roomId.roomId,
             usuario: cookies.get('username')
         });
     }
