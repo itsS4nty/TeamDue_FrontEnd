@@ -16,6 +16,7 @@ export const SesionScreen = (props) => {
             showToast('err', 'El nombre de la sala no puede estar vacío');
             return;
         }
+        console.log(roomId.createRoom);
         socket.emit("new-room", {roomId: roomId.createRoom, usuario: cookies.get('username')});
     }
     const handleRoomIdChange = (e) => {
@@ -28,8 +29,8 @@ export const SesionScreen = (props) => {
         e.preventDefault();
         showToast('info', "Petición enviada...");
         socket.emit("peticionSala-enviada", {
-            room: roomId.joinRoom,
-            user: roomId.user
+            roomId: roomId.joinRoom,
+            usuario: cookies.get('username')
         });
     }
     useEffect(() => {
