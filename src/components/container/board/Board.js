@@ -5,6 +5,7 @@ import rough from 'roughjs/bundled/rough.esm';
 import {showToast} from '../../../helpers/toast';
 import { SessionRequest } from '../../toasts/sessionRequest/SessionRequest';
 import {cookies} from '../../../helpers/createCookies';
+import { ColorizeTwoTone } from '@material-ui/icons';
 var oldColor = '#fff';
 var oldSize = 5;
 var option = 'free';
@@ -19,7 +20,9 @@ var imgStyle = {
 const generator = rough.generator();
 var sessionId = Math.floor(Math.random() * 1001)
 
-export const Board = ({color, size, option:opt, img:image, filter:filterChange, brightness:brightnessChange, saturate:saturateChange, sepia:sepiaChange, blur:blurChange, contrast:contrastChange, customFilter:customFilterChange, changeColorDataDropper, distortion:distortionChange}) => {
+var idSessionRoom = '';
+
+export const Board = ({location, color, size, option:opt, img:image, filter:filterChange, brightness:brightnessChange, saturate:saturateChange, sepia:sepiaChange, blur:blurChange, contrast:contrastChange, customFilter:customFilterChange, changeColorDataDropper, distortion:distortionChange}) => {
     const [lineCoordinates, setLineCoordinates] = useState({
         x1: undefined,
         y1: undefined
@@ -33,7 +36,11 @@ export const Board = ({color, size, option:opt, img:image, filter:filterChange, 
         height: 0
     })
     useEffect(() => {
+        const windowUrl = window.location.search;
+        const params = new URLSearchParams(windowUrl);
         sessionId = sessionId.toString(); 
+        console.log(params.get('sessionId'))
+        idSessionRoom = params.get('sessionId');
         drawOnCanvas();
     }, []);
     // useEffect(() => {
@@ -71,9 +78,8 @@ export const Board = ({color, size, option:opt, img:image, filter:filterChange, 
             var rect = generator.rectangle(x1, y1, x2, y2, {roughness: roughness, strokeWidth: strokeWidth, stroke: stroke});
             rCanvas.draw(rect);
         });
-        socket.on("background-image", ({image, canvasWH:wh}) => {
-            console.log(image);
-            console.log(sessionId, wh)
+        socket.on("background-image", (data) => {
+            var {image, canvasWH:wh} = data;
             var canvas = document.getElementById(sessionId);
             var ctx = canvas.getContext("2d");
             var background = new Image();
@@ -83,13 +89,26 @@ export const Board = ({color, size, option:opt, img:image, filter:filterChange, 
                 ctx.drawImage(background, 0, 0, wh.width, wh.height);
             }
         });
-        socket.on("filters", ({customFilter:customRemote, style, filter:filterRemote}) => {
-            console.log(customRemote, style);
+        socket.on("filters", (data) => {
+            var {customFilter:customRemote, style, filter:filterRemote} = data;
             customFilter = customRemote;
             imgStyle = style;
             filter = filterRemote;
         });
-        socket.emit("refresh-page", cookies.get('username'));
+        socket.on("entrando-sala", (data) => {
+            console.log('Entro aqui')
+            socket.emit("canvas", {canvas: canvas.toDataURL(), idRoom: idSessionRoom});
+        })
+        socket.on("canvas", (data) => {
+            console.log(data)
+            var im = new Image();
+            im.onload = () => {
+                console.log(data);
+                ctx.drawImage(im, 0, 0);
+            }
+            im.src = data;
+        })
+        socket.emit("refresh-page", {usuario: cookies.get('username'), idRoom: idSessionRoom, canvas: canvas.toDataURL()});
     }, []);
     useEffect(() => {
         customFilter = customFilterChange;
@@ -108,7 +127,6 @@ export const Board = ({color, size, option:opt, img:image, filter:filterChange, 
         });
         option = opt;
         filter = filterChange;
-        socket.emit('filters', {customFilter: customFilter, style: imgStyle, filter: filter});
         if(option === 'line' || option === 'rectangle') {
             drawLine = true;
             cross = true;
@@ -127,7 +145,7 @@ export const Board = ({color, size, option:opt, img:image, filter:filterChange, 
         background.onload = () => {
             ctx.drawImage(background, 0, 0, canvasWH.width, canvasWH.height);
         }
-        socket.emit('background-image', {image:image, canvasWH: canvasWH});
+        socket.emit('background-image', {image:image, canvasWH: canvasWH, idRoom: idSessionRoom});
     }, [image, canvasWH]);
     useEffect(() => {
         var canvas = document.getElementById(sessionId);
@@ -135,7 +153,7 @@ export const Board = ({color, size, option:opt, img:image, filter:filterChange, 
         changeBrushData(ctx, brushData);
     }, [brushData]);
     const sendCtxData = (ctxData) => {
-        socket.emit("canvas-data", ctxData);
+        socket.emit("canvas-data", {canvas: ctxData, idRoom: idSessionRoom});
     }
     const drawOnCanvas = () => {
         // var rCanvas = document.getElementById("boardLineRect");
@@ -186,7 +204,8 @@ export const Board = ({color, size, option:opt, img:image, filter:filterChange, 
                 lineToY: mY,
                 color: ctx.strokeStyle,
                 size: ctx.lineWidth,
-                sessionId: sessionId
+                sessionId: sessionId,
+                idRoom: idSessionRoom
             }
             sendCtxData(movements);
             draw(ctx, lX, lY, mX, mY, false);
@@ -256,7 +275,7 @@ export const Board = ({color, size, option:opt, img:image, filter:filterChange, 
                 };
                 var line = generator.line(x1, y1, dataToSend.x2, dataToSend.y2, {roughness: distortion, strokeWidth: oldSize, stroke: oldColor});
                 rCanvas.draw(line);
-                socket.emit('draw-line', dataToSend);
+                socket.emit('draw-line', {canvas: dataToSend, idRoom: idSessionRoom});
                 setLineCoordinates({
                     ...lineCoordinates,
                     x1: undefined,
@@ -297,10 +316,9 @@ export const Board = ({color, size, option:opt, img:image, filter:filterChange, 
                 // ctx.strokeStyle = colorToDraw;
                 // ctx.closePath();
                 // ctx.stroke();
-                console.log(distortion);
                 var rectDraw = generator.rectangle(x1, y1, dataToSend.x2, dataToSend.y2, {roughness: distortion, strokeWidth: oldSize, stroke: oldColor});
                 rCanvas.draw(rectDraw);
-                socket.emit('draw-rect', dataToSend);
+                socket.emit('draw-rect', {canvas: dataToSend, idRoom: idSessionRoom});
                 setLineCoordinates({
                     ...lineCoordinates,
                     x1: undefined,
@@ -317,7 +335,6 @@ export const Board = ({color, size, option:opt, img:image, filter:filterChange, 
         var colorData = ctx.getImageData(e.clientX - rect.left, e.clientY - rect.top, 1, 1);
         var {0:r, 1:g, 2:b} = colorData.data;
         changeColorDataDropper({r, g, b});
-        console.log(r, g, b);
     }
     return (
         <div id="sketch" className="sketch">

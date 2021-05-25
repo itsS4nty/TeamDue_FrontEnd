@@ -8,7 +8,7 @@ export const SesionScreen = (props) => {
     const [roomId, setRoomId] = useState({
         createRoom: '',
         joinRoom: '',
-        user: 'prueba' 
+        user: cookies.get('username') 
     });
     const handleOnCreateRoom = (e) => {
         e.preventDefault();
@@ -31,8 +31,9 @@ export const SesionScreen = (props) => {
     const handleJoinRoom = (e) => {
         e.preventDefault();
         showToast('info', "Petición enviada...");
+        console.log(roomId.roomId)
         socket.emit("peticionSala-enviada", {
-            room: roomId.roomId,
+            room: roomId.joinRoom,
             usuario: cookies.get('username')
         });
     }
@@ -44,15 +45,16 @@ export const SesionScreen = (props) => {
         });
         socket.on("peticionAceptada", (idRoom) => {
             showToast("ok", "¡Entrando en la sala!")
-            socket.emit("join-room", {roomId: roomId.createRoom, usuario: cookies.get('username')});
-            props.history.push('/board');
+            socket.emit("join-room", {roomId: idRoom, usuario: cookies.get('username')});
+            props.history.push({pathname: '/board', search: `?sessionId=${idRoom}`});
         });
         socket.on("peticionRechazada", (idRoom) => {
             showToast("err", `Acceso denegado a la sala ${idRoom}`);
         });
         socket.on("sala-creada", (data) => {
             showToast("ok", "¡Sala creada correctamente!");
-            props.history.push('/board');
+            console.log(data)
+            props.history.push({pathname: '/board', search: `?sessionId=${data}`});
         })
     }, [props.history]);
 
