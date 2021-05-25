@@ -5,7 +5,7 @@ export const showToast = (type, msg) => {
     var toastType, pos = 'bottom-center';
     if(type === 'err') toastType = toast.error;
     else if(type === 'ok') toastType = toast.success;
-    else if(type === 'info') toastType = toast.info
+    else if(type === 'info') toastType = toast.info;
     else toastType = toast;
     if(type == 'request') pos = 'top-center';
     toastType(msg, {

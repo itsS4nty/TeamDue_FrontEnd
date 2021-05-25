@@ -6,9 +6,9 @@ import { FileGridItem } from './FileGridItem';
 
 const FileGrid = ({file}) => {
     const [files, setFiles] = useState([]);
-    useEffect( () => {
-        getFiles().then(setFiles);
-    }, [file]);
+    // useEffect( () => {
+    //     getFiles().then(setFiles);
+    // }, [file]);
     return (
         <>
            <div id='createFile'>
