@@ -9,7 +9,6 @@ export const AddFile = ({setFiles, redirect}) => {
     const [inputValue, setInputValue] = useState('');
     const [type, setType] = useState('image');
     const handleInputChange = (e) => {
-        generateToken();
         setInputValue(e.target.value);
     }
     const handleSubmit = (e) => {
@@ -23,29 +22,33 @@ export const AddFile = ({setFiles, redirect}) => {
         e.preventDefault();
         if(inputValue.trim().length > 2) {
             setFiles((files => [{name: inputValue}, ...files]));
-            setInputValue("");
-            let url = "http://51.38.225.18:3000/createFile";
-            let extension = type === 'image' ? '.png' : '.txt';
+            let extension = type === 'image' ? 'png' : 'txt';
             let route = type === 'image' ? 'board' : 'texteditor';
-            let data = {
-                file: `${inputValue}${extension}`,
-                UsuarioId: cookies.get('userId')
-            }
-            axios.post(url, data).then((response) => {
+            let url = `http://51.38.225.18:3000/comprovarArchivo/?nomFichero=${inputValue}&idUsuario=${cookies.get('userId')}&tipo=${extension}`;
+            setInputValue("");
+            axios.get(url).then((response) => {
                 if(response.status === 200) {
+                    url = "http://51.38.225.18:3000/createFile";
+                    var canvas = document.getElementById('blankCanvas');
+                    var ctx = canvas.getContext('2d');
+                    let data = {
+                        file: `${inputValue}.${extension}`,
+                        UsuarioId: cookies.get('userId')
+                    }
+                    axios.post(url, data)
                     let token = generateToken();
-                    redirect(route, 'hash');
+                    redirect(route, 1, token);
                 }
             })
         }
     }
     const generateToken = () => {
         var date = Date.now() * Math.floor(Math.random() * 1001);
-        console.log(date);
-
+        return md5(date.toString()).toString();
     }
     return (
-        <>
+        <span>
+            <canvas className='board' style={{display: 'hidden'}} id="blankCanvas"></canvas>
             <form className="switch-field">
                 <input type="text" value={inputValue} onChange= {handleInputChange} />
                 <input type="radio" id="image" name="image" value="image" checked={type === 'image'} onChange={() => setType('image')}/>
@@ -54,7 +57,7 @@ export const AddFile = ({setFiles, redirect}) => {
                 <label htmlFor="text">Texto</label>
             </form>
             <input type='button' id='create' name='create' value='Crear' onClick={createFile} />
-        </>
+        </span>
     )
 }
 AddFile.propTypes = {
