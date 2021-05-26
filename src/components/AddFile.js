@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import { cookies } from '../helpers/createCookies';
+import axios from 'axios';
 import md5 from 'crypto-js/md5';
 
 export const AddFile = ({setFiles, redirect}) => {

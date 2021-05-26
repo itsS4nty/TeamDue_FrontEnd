@@ -7,7 +7,7 @@ const PremiumPage = (props) => {
     const [file, setFile] = useState(['Archivo']);
     if(!cookies.get('loggedIn')) props.history.push('/login');
     const redirect = (route, fileId) => {
-        props.history.push({pathname: `/${route}`, search: `?roomId=${data}&fileId=${fileId}`});
+        // props.history.push({pathname: `/${route}`, search: `?roomId=${data}&fileId=${fileId}`});
     }
     return (
         <div id="principal-container">
