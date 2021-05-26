@@ -1,0 +1,23 @@
+Para crear un archivo, es decir subir el archivo al servidor es:
+	POST "/createFile", tienes que pasar por post un archivo con el nombre de la key "file" y una id del usuario con nombre de la key "UsuarioId", esto guarda en la carpeta
+	del usuario el archivo en el servidor. Estate atento por los errores que te puede devolver 400 error en la base de datos, 409 file not exists, usuario not exists o duplicate.
+	si la operacion es exitosa te devuelve un status  201 Created.
+
+Para obtener todos los archivos de un usuario para ver que tiene (solo te da informacion, no te da las imagenes):
+	GET "/files/:idUsuario", por ejemplo http://51.38.225.18:3000/files/27, te devuelve un json con la informacion de todos los archivos del usuario, los campos son los mismo que los que estan
+	en la base de datos. Estate atento por los errores que te puede devolver 400 error en la base de datos, 409 file not exists o usuario not exists.
+	Si es exitoso te devuelve un status  200
+
+Para obtener un archivo para usarlo:
+	GET "/file/:idArchivo" por ejemplo http://51.38.225.18:3000/file/1, esto te devuelve la imagen para usarla. Estate atento por los errores que te puede devolver 400 error en la base de datos, 409 file not exists o usuario not exists.
+	Si es exitoso te devuelve un status 200 (creo)
+
+Para descargar un archivo para usarlo:
+	GET "/downloadFile/:idArchivo" por ejemplo http://51.38.225.18:3000/downloadFile/1, esto te devuelve la imagen para descargarla. Estate atento por los errores que te puede devolver 400 error en la base de datos, 409 file not exists o usuario not exists.
+	Si es exitoso te devuelve un status 200 (creo)
+
+Para guardar un archivo:
+	POST "/saveFile", tienes que pasar por post un archivo con el nombre de la key "file" y una id del archivo con nombre de la key "idArchivo". Estate atento por los errores que te puede devolver 400 error en la base de datos, 409 file not exists, usuario not exists o duplicate.
+	si la operacion es exitosa te devuelve un status 200 Archivo guardado.
+
+IMPORTANTE: Al hacer un GET /file/:idArchivo por ejemplo tienes que guardar la id del archivo para despues guardar el archivo de nuevo en el servidor. idArchivo

@@ -39,8 +39,8 @@ export const Board = ({location, color, size, option:opt, img:image, filter:filt
         const windowUrl = window.location.search;
         const params = new URLSearchParams(windowUrl);
         sessionId = sessionId.toString(); 
-        console.log(params.get('sessionId'))
-        idSessionRoom = params.get('sessionId');
+        console.log(params.get('roomId'))
+        idSessionRoom = params.get('roomId');
         drawOnCanvas();
     }, []);
     // useEffect(() => {
