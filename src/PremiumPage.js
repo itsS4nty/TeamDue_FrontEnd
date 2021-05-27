@@ -16,7 +16,7 @@ const PremiumPage = (props) => {
                <p>Crear archivo</p>
                 <AddFile setFiles={setFile} redirect={redirect} />
            </div>
-           {file.map(fil => <FileGrid key={fil.name} file={fil.name} />)}
+           {file.map(fil => <FileGrid key={fil.name} file={fil.name} redirect={redirect} />)}
         </div>
     );
         

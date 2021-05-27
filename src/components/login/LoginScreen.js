@@ -24,6 +24,7 @@ export const LoginScreen = (props) => {
                 cookies.set('premium', response.data.usuario.premium);
                 cookies.set('loggedIn', true);
                 cookies.set('username', response.data.usuario.usuario);
+                cookies.set('userId', response.data.usuario.id);
                 props.history.push('/files');
             }
         })

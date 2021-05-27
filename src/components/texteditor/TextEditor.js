@@ -9,7 +9,7 @@ import { Button, Icon, Toolbar } from "./components";
 import {showToast} from '../../helpers/toast';
 import { SessionRequest } from '../toasts/sessionRequest/SessionRequest'
 import {cookies} from '../../helpers/createCookies';
-
+var idSessionRoom = '';
 const HOTKEYS = {
   "mod+b": "bold",
   "mod+i": "italic",
@@ -30,7 +30,13 @@ export const TextEditor = (props) => {
       setValue(data);
     });
     socket.emit("refresh-page", cookies.get('username'));
-  }, [props.history])
+  }, [props.history]);
+  useEffect(() => {
+    const windowUrl = window.location.search;
+    const params = new URLSearchParams(windowUrl);
+    console.log(params.get('roomId'));
+    idSessionRoom = params.get('roomId');
+  }, []);
   return (
     <div className="textEditor">
         <Slate editor={editor} value={value} onChange={value => setValue(value)}>
@@ -63,7 +69,7 @@ export const TextEditor = (props) => {
             }}
             onKeyUp={(e) => {
                 setTimeout(() => {
-                    socket.emit('new-text', value);
+                    socket.emit('new-text', {data: value, idRoom: idSessionRoom});
                 }, 100);
             }}
         />

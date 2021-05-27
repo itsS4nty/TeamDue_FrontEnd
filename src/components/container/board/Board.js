@@ -6,6 +6,7 @@ import {showToast} from '../../../helpers/toast';
 import { SessionRequest } from '../../toasts/sessionRequest/SessionRequest';
 import {cookies} from '../../../helpers/createCookies';
 import { ColorizeTwoTone } from '@material-ui/icons';
+import axios from 'axios';
 var oldColor = '#fff';
 var oldSize = 5;
 var option = 'free';
@@ -20,7 +21,7 @@ var imgStyle = {
 const generator = rough.generator();
 var sessionId = Math.floor(Math.random() * 1001)
 
-var idSessionRoom = '';
+var idSessionRoom = '', fileId = '';
 
 export const Board = ({location, color, size, option:opt, img:image, filter:filterChange, brightness:brightnessChange, saturate:saturateChange, sepia:sepiaChange, blur:blurChange, contrast:contrastChange, customFilter:customFilterChange, changeColorDataDropper, distortion:distortionChange}) => {
     const [lineCoordinates, setLineCoordinates] = useState({
@@ -39,8 +40,8 @@ export const Board = ({location, color, size, option:opt, img:image, filter:filt
         const windowUrl = window.location.search;
         const params = new URLSearchParams(windowUrl);
         sessionId = sessionId.toString(); 
-        console.log(params.get('roomId'))
         idSessionRoom = params.get('roomId');
+        fileId = params.get('fileId');
         drawOnCanvas();
     }, []);
     // useEffect(() => {
@@ -152,6 +153,20 @@ export const Board = ({location, color, size, option:opt, img:image, filter:filt
         var ctx = canvas.getContext('2d');
         changeBrushData(ctx, brushData);
     }, [brushData]);
+    useEffect(() => {
+        var canvas = document.getElementById(sessionId);
+        var ctx = canvas.getContext("2d");
+        var background = new Image();
+        var sketch = document.querySelector('#sketch');
+        var sketch_style = getComputedStyle(sketch);
+        var w = parseInt(sketch_style.getPropertyValue('width'));
+        var h = parseInt(sketch_style.getPropertyValue('height'));
+        background.crossOrigin = "Anonymous";
+        background.src = `http://51.38.225.18:3000/file/${fileId}`;
+        background.onload = () => {
+            ctx.drawImage(background, 0, 0, w, h);
+        }
+    }, [])
     const sendCtxData = (ctxData) => {
         socket.emit("canvas-data", {canvas: ctxData, idRoom: idSessionRoom});
     }
@@ -336,8 +351,26 @@ export const Board = ({location, color, size, option:opt, img:image, filter:filt
         var {0:r, 1:g, 2:b} = colorData.data;
         changeColorDataDropper({r, g, b});
     }
+    const saveFile = (e) => {
+        e.preventDefault();
+        var canvas = document.getElementById(sessionId);
+        console.log((new Blob([canvas.toDataURL()])).size);
+        let data = {
+            idArchivo: fileId,
+            base64Data: canvas.toDataURL().replace(/^data:image\/png;base64,/, "")
+        };
+        let url = `http://51.38.225.18:3000/saveFile`;
+        const config = {
+            headers: { 'Content-Type': 'multipart/form-data' }
+          }
+          console.log(data.idArchivo)
+        axios.post(url, data, config).then((response) => {
+            console.log(response);
+        })
+    }
     return (
         <div id="sketch" className="sketch">
+            <input type='button' id='save' value='Guardar' onClick={saveFile} />
             <canvas onContextMenu={(e) => e.preventDefault()} className={`board ${filter} ${cross ? "crosshairCursor" : ""}`} style={{filter: customFilter ? imgStyle.filter: ''}} id={sessionId} onClick={handleOnClick}></canvas>
             <ToastContainer
                 position="top-center"
