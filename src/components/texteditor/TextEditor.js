@@ -4,12 +4,13 @@ import { Editable, withReact, useSlate, Slate } from "slate-react";
 import { Editor, Transforms, createEditor } from "slate";
 import { withHistory } from "slate-history";
 import { ToastContainer, Slide } from 'react-toastify';
+import axios from 'axios';
 import {socket} from '../../helpers/createSocket';
 import { Button, Icon, Toolbar } from "./components";
 import {showToast} from '../../helpers/toast';
 import { SessionRequest } from '../toasts/sessionRequest/SessionRequest'
 import {cookies} from '../../helpers/createCookies';
-var idSessionRoom = '';
+var idSessionRoom = '', fileId = '', fileName = '';
 const HOTKEYS = {
   "mod+b": "bold",
   "mod+i": "italic",
@@ -20,23 +21,30 @@ const HOTKEYS = {
 const LIST_TYPES = ["numbered-list", "bulleted-list"];
 
 export const TextEditor = (props) => {
-  const [value, setValue] = useState(initialValue);
+  const [value, setValue] = useState(sessionStorage.getItem('content'));
   const renderElement = useCallback(props => <Element {...props} />, []);
   const renderLeaf = useCallback(props => <Leaf {...props} />, []);
   const editor = useMemo(() => withHistory(withReact(createEditor())), []);
-  useEffect(() => {
-    if(!cookies.get('loggedIn')) props.history.push('/login');
-    socket.on('new-text', (data) => {
-      setValue(data);
-    });
-    socket.emit("refresh-page", cookies.get('username'));
-  }, [props.history]);
   useEffect(() => {
     const windowUrl = window.location.search;
     const params = new URLSearchParams(windowUrl);
     console.log(params.get('roomId'));
     idSessionRoom = params.get('roomId');
+    fileId = params.get('fileId');
+    fileName = params.get('fileName');
   }, []);
+  useEffect(() => {
+    if(!cookies.get('loggedIn')) props.history.push('/login');
+    socket.on('new-text', (data) => {
+      setValue(data);
+    });
+    
+    socket.emit('pedir-texto', {
+      usuario: cookies.get('username'),
+      nombre: fileName.split('.')[0]
+    })
+    socket.emit("refresh-page", cookies.get('username'));
+  }, [props.history]);
   return (
     <div className="textEditor">
         <Slate editor={editor} value={value} onChange={value => setValue(value)}>
@@ -189,7 +197,7 @@ const MarkButton = ({ format, icon }) => {
   );
 };
 
-const initialValue = [{
+var initialValue = [{
     type: 'paragraph',
     children: [{ text: ' '}],
-  }];
+}];

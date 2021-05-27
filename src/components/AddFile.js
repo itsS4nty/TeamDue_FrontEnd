@@ -51,7 +51,7 @@ export const AddFile = ({setFiles, redirect}) => {
                     url = `http://51.38.225.18:3000/comprovarArchivo/?nomFichero=${inputValue}&idUsuario=${cookies.get('userId')}&tipo=${extension}`;
                     axios.get(url).then((response) => {
                         let token = generateToken();
-                        redirect(route, response.data.id, token);
+                        redirect(route, response.data.id, token, `${inputValue}.${extension}`);
                     })
                 }
             })

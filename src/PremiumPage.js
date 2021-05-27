@@ -1,4 +1,5 @@
 import React, {useState} from 'react';
+import axios from 'axios';
 import { AddFile } from './components/AddFile';
 import FileGrid from './components/FileGrid';
 import {cookies} from './helpers/createCookies';
@@ -6,8 +7,12 @@ import {cookies} from './helpers/createCookies';
 const PremiumPage = (props) => {
     const [file, setFile] = useState(['Archivo']);
     if(!cookies.get('loggedIn')) props.history.push('/login');
-    const redirect = (route, fileId, hash) => {
-        props.history.push({pathname: `/${route}`, search: `?roomId=${hash}&fileId=${fileId}`});
+    const redirect = (route, fileId, hash, fileName) => {
+        axios.get(`http://51.38.225.18:3000/pedirTexto?usuario=${cookies.get('username')}&nombre=${fileName.split('.')[0]}`).then((response) => {
+            let content = JSON.stringify(response.data).replace(/(")/g, "");
+            sessionStorage.setItem('content', response.data);
+            props.history.push({pathname: `/${route}`, search: `?roomId=${hash}&fileId=${fileId}&fileName=${fileName}`});
+        })
     }
     return (
         <div id="principal-container">

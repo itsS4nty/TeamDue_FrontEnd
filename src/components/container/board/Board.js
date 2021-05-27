@@ -21,7 +21,7 @@ var imgStyle = {
 const generator = rough.generator();
 var sessionId = Math.floor(Math.random() * 1001)
 
-var idSessionRoom = '', fileId = '';
+var idSessionRoom = '', fileId = '', fileName = '';
 
 export const Board = ({location, color, size, option:opt, img:image, filter:filterChange, brightness:brightnessChange, saturate:saturateChange, sepia:sepiaChange, blur:blurChange, contrast:contrastChange, customFilter:customFilterChange, changeColorDataDropper, distortion:distortionChange}) => {
     const [lineCoordinates, setLineCoordinates] = useState({
@@ -42,6 +42,7 @@ export const Board = ({location, color, size, option:opt, img:image, filter:filt
         sessionId = sessionId.toString(); 
         idSessionRoom = params.get('roomId');
         fileId = params.get('fileId');
+        fileName = params.get('fileName');
         drawOnCanvas();
     }, []);
     // useEffect(() => {
@@ -186,8 +187,6 @@ export const Board = ({location, color, size, option:opt, img:image, filter:filt
             width: canvas.width,
             height: canvas.height
         })
-        // canvas.width = canvas.parentNode.offsetWidth;
-        // canvas.height = canvas.parentNode.offsetHeight;
         var mouse = {x: 0, y: 0};
         var last_mouse = {x: 0, y: 0};
         /* Mouse Capturing Work */
@@ -251,7 +250,6 @@ export const Board = ({location, color, size, option:opt, img:image, filter:filt
         ctx.beginPath();
         ctx.moveTo(moveToX, moveToY);
         ctx.lineTo(lineToX, lineToY);
-        // changeBrushData(ctx, {color: colorToDraw, size: sizeToDraw});
         ctx.lineWidth = sizeToDraw;
         ctx.strokeStyle = colorToDraw;
         ctx.closePath();
@@ -324,13 +322,6 @@ export const Board = ({location, color, size, option:opt, img:image, filter:filt
                     stroke: oldColor,
                     roughness: distortion
                 };
-                // ctx.moveTo(x1, y1);
-                // ctx.strokeRect(x1, y1, dataToSend.x2, dataToSend.y2);
-                // changeBrushData(ctx, {color: colorToDraw, size: sizeToDraw});
-                // ctx.lineWidth = sizeToDraw;
-                // ctx.strokeStyle = colorToDraw;
-                // ctx.closePath();
-                // ctx.stroke();
                 var rectDraw = generator.rectangle(x1, y1, dataToSend.x2, dataToSend.y2, {roughness: distortion, strokeWidth: oldSize, stroke: oldColor});
                 rCanvas.draw(rectDraw);
                 socket.emit('draw-rect', {canvas: dataToSend, idRoom: idSessionRoom});
@@ -354,19 +345,26 @@ export const Board = ({location, color, size, option:opt, img:image, filter:filt
     const saveFile = (e) => {
         e.preventDefault();
         var canvas = document.getElementById(sessionId);
-        console.log((new Blob([canvas.toDataURL()])).size);
+        //console.log((new Blob([canvas.toDataURL()])).size);
+        let fileN, extensionN;
+        fileN = fileName.split('.')[0]
+        extensionN = fileName.split('.')[1]
         let data = {
             idArchivo: fileId,
-            base64Data: canvas.toDataURL().replace(/^data:image\/png;base64,/, "")
+            base64Data: canvas.toDataURL().replace(/^data:image\/png;base64,/, ""),
+            usuario: cookies.get('username'),
+            nombre: fileN,
+            tipo: extensionN
         };
-        let url = `http://51.38.225.18:3000/saveFile`;
+        /*let url = `http://51.38.225.18:3000/saveFile`;
         const config = {
             headers: { 'Content-Type': 'multipart/form-data' }
           }
           console.log(data.idArchivo)
         axios.post(url, data, config).then((response) => {
             console.log(response);
-        })
+        })*/
+        socket.emit('guardar-fichero', data);
     }
     return (
         <div id="sketch" className="sketch">
