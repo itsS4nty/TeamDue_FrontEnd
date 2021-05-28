@@ -62,7 +62,7 @@ export const AddFile = ({setFiles, redirect}) => {
     return (
         <span>
             <form className="switch-field">
-                <input type="text" value={inputValue} onChange= {handleInputChange} />
+                <input type="text" value={inputValue} onChange={handleInputChange} />
                 <input type="radio" id="image" name="image" value="image" checked={type === 'image'} onChange={() => setType('image')}/>
                 <label htmlFor="image">Imagen</label>
                 <input type="radio" id="text" name="text" value="Text" checked={type === 'text'} onChange={() => setType('text')}/>
@@ -75,4 +75,3 @@ export const AddFile = ({setFiles, redirect}) => {
 AddFile.propTypes = {
     setFiles: PropTypes.func.isRequired
 }
-
