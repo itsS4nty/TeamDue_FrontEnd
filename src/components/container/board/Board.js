@@ -43,6 +43,7 @@ export const Board = ({location, color, size, option:opt, img:image, filter:filt
         idSessionRoom = params.get('roomId');
         fileId = params.get('fileId');
         fileName = params.get('fileName');
+        if(!params.get('button')) socket.emit("join-room", {roomId: idSessionRoom, usuario: cookies.get('username')}); 
         drawOnCanvas();
     }, []);
     // useEffect(() => {
@@ -345,7 +346,6 @@ export const Board = ({location, color, size, option:opt, img:image, filter:filt
     const saveFile = (e) => {
         e.preventDefault();
         var canvas = document.getElementById(sessionId);
-        //console.log((new Blob([canvas.toDataURL()])).size);
         let fileN, extensionN;
         fileN = fileName.split('.')[0]
         extensionN = fileName.split('.')[1]
@@ -354,16 +354,8 @@ export const Board = ({location, color, size, option:opt, img:image, filter:filt
             base64Data: canvas.toDataURL().replace(/^data:image\/png;base64,/, ""),
             usuario: cookies.get('username'),
             nombre: fileN,
-            tipo: extensionN
+            tipo: 'png'
         };
-        /*let url = `http://51.38.225.18:3000/saveFile`;
-        const config = {
-            headers: { 'Content-Type': 'multipart/form-data' }
-          }
-          console.log(data.idArchivo)
-        axios.post(url, data, config).then((response) => {
-            console.log(response);
-        })*/
         socket.emit('guardar-fichero', data);
     }
     return (

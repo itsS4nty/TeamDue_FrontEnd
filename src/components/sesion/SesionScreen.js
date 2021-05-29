@@ -17,10 +17,7 @@ export const SesionScreen = (props) => {
             return;
         }
         console.log(roomId.createRoom);
-        socket.emit("new-room", {
-            roomId: roomId.createRoom,
-            usuario: cookies.get('username')
-        });
+        
     }
     const handleRoomIdChange = (e) => {
         setRoomId({
@@ -45,7 +42,7 @@ export const SesionScreen = (props) => {
         });
         socket.on("peticionAceptada", (idRoom) => {
             showToast("ok", "¡Entrando en la sala!")
-            socket.emit("join-room", {roomId: idRoom, usuario: cookies.get('username')});
+            
             props.history.push({pathname: '/board', search: `?sessionId=${idRoom}`});
         });
         socket.on("peticionRechazada", (idRoom) => {
