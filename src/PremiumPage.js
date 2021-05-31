@@ -18,8 +18,8 @@ const PremiumPage = (props) => {
         } else {
             axios.get(`http://51.38.225.18:3000/pedirTexto?usuario=${cookies.get('username')}&nombre=${fileName.split('.')[0]}`).then((response) => {
                 let content = JSON.stringify(response.data).replace(/(")/g, "");
-                console.log(typeof response.data);
-                sessionStorage.setItem('content', response.data);
+                console.log(JSON.stringify(response.data));
+                sessionStorage.setItem('content', JSON.stringify(response.data).replace(/\\/g, ""));
                 props.history.push({pathname: `/${route}`, search: `?roomId=${hash}&fileId=${fileId}&fileName=${fileName.split('.')[0]}`});
             })
         }

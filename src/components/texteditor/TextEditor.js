@@ -10,6 +10,7 @@ import { Button, Icon, Toolbar } from "./components";
 import {showToast} from '../../helpers/toast';
 import { SessionRequest } from '../toasts/sessionRequest/SessionRequest'
 import {cookies} from '../../helpers/createCookies';
+import { FilterCenterFocusTwoTone } from "@material-ui/icons";
 var idSessionRoom = '', fileId = '', fileName = '';
 const HOTKEYS = {
   "mod+b": "bold",
@@ -21,7 +22,8 @@ const HOTKEYS = {
 const LIST_TYPES = ["numbered-list", "bulleted-list"];
 
 export const TextEditor = (props) => {
-  const [value, setValue] = useState(sessionStorage.getItem('content'));
+  // sessionStorage.getItem('content')
+  const [value, setValue] = useState(JSON.parse(sessionStorage.getItem('content')));
   const renderElement = useCallback(props => <Element {...props} />, []);
   const renderLeaf = useCallback(props => <Leaf {...props} />, []);
   const editor = useMemo(() => withHistory(withReact(createEditor())), []);
@@ -47,7 +49,7 @@ export const TextEditor = (props) => {
   }, [props.history]);
   return (
     <div className="textEditor">
-        <Slate editor={editor} value={value} onChange={value => setValue(value)}>
+        <Slate editor={editor} value={value} onChange={value =>  setValue(value)}>
         <Toolbar>
             &nbsp;
             <MarkButton format="bold" icon="format_bold" />
@@ -76,6 +78,7 @@ export const TextEditor = (props) => {
             }
             }}
             onKeyUp={(e) => {
+                console.log(value);
                 setTimeout(() => {
                     socket.emit('new-text', {data: value, idRoom: idSessionRoom});
                 }, 100);
