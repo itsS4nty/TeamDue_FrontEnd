@@ -15,7 +15,6 @@ export const DashboardRoutes = () => {
                     <Route exact path="/files" component={PremiumPage}></Route>
                     <Route exact path="/board" component={Container}></Route>
                     <Route exact path="/texteditor" component={TextEditor}></Route>
-                    <Route exact path="/sesion" component={SesionScreen}></Route>
                     <Redirect to="/files" />
                 </Switch>
             </div>   

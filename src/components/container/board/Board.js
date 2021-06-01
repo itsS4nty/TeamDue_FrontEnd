@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import {socket} from '../../../helpers/createSocket';
+// import {socket} from '../../../helpers/createSocket';
 import { ToastContainer, Slide } from 'react-toastify';
 import rough from 'roughjs/bundled/rough.esm';
 import {showToast} from '../../../helpers/toast';
@@ -23,7 +23,7 @@ var sessionId = Math.floor(Math.random() * 1001)
 
 var idSessionRoom = '', fileId = '', fileName = '';
 
-export const Board = ({location, color, size, option:opt, img:image, filter:filterChange, brightness:brightnessChange, saturate:saturateChange, sepia:sepiaChange, blur:blurChange, contrast:contrastChange, customFilter:customFilterChange, changeColorDataDropper, distortion:distortionChange}) => {
+export const Board = ({location, color, size, option:opt, img:image, filter:filterChange, brightness:brightnessChange, saturate:saturateChange, sepia:sepiaChange, blur:blurChange, contrast:contrastChange, customFilter:customFilterChange, changeColorDataDropper, distortion:distortionChange, socket}) => {
     const [lineCoordinates, setLineCoordinates] = useState({
         x1: undefined,
         y1: undefined
@@ -87,31 +87,25 @@ export const Board = ({location, color, size, option:opt, img:image, filter:filt
             var ctx = canvas.getContext("2d");
             var background = new Image();
             background.crossOrigin = "Anonymous";
-            background.src = image;
             background.onload = () => {
                 ctx.drawImage(background, 0, 0, wh.width, wh.height);
             }
-        });
-        socket.on("filters", (data) => {
-            var {customFilter:customRemote, style, filter:filterRemote} = data;
-            customFilter = customRemote;
-            imgStyle = style;
-            filter = filterRemote;
+            background.src = image;
         });
         socket.on("entrando-sala", (data) => {
-            console.log('Entro aqui')
             socket.emit("canvas", {canvas: canvas.toDataURL(), idRoom: idSessionRoom});
         })
         socket.on("canvas", (data) => {
-            console.log(data)
             var im = new Image();
             im.onload = () => {
-                console.log(data);
                 ctx.drawImage(im, 0, 0);
             }
             im.src = data;
         })
         socket.emit("refresh-page", {usuario: cookies.get('username'), idRoom: idSessionRoom, canvas: canvas.toDataURL()});
+        window.onpopstate = e => {
+            socket.disconnect();
+        }
     }, []);
     useEffect(() => {
         customFilter = customFilterChange;
@@ -130,6 +124,8 @@ export const Board = ({location, color, size, option:opt, img:image, filter:filt
         });
         option = opt;
         filter = filterChange;
+        var canvas = document.getElementById(sessionId);
+        //socket.emit('filters', {image: canvas.toDataURL(), canvasWH: canvasWH, idRoom: idSessionRoom});
         if(option === 'line' || option === 'rectangle') {
             drawLine = true;
             cross = true;

@@ -1,6 +1,8 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Board } from './board/Board';
 import {cookies} from '../../helpers/createCookies';
+import { socket } from '../../helpers/createSocket';
+var idSessionRoom = '';
 
 export const Container = (props) => {
     if(!cookies.get('loggedIn')) props.history.push('/login');
@@ -31,7 +33,10 @@ export const Container = (props) => {
         setCustomFilter({
             ...customFilter,
             [e.target.name]: e.target.value
-        })
+        });
+        setTimeout(() => {
+            socket.emit('customFilter', {custom: customFilter, idRoom: idSessionRoom, user: cookies.get('username')});
+        }, 100);
     }
     const handleClickOnResetButton = () => {
         setCustomFilter({
@@ -58,6 +63,19 @@ export const Container = (props) => {
     const rgbToHex = (r, g, b) => {
         return "#" + componentToHex(r) + componentToHex(g) + componentToHex(b);
     }
+    useEffect(() => {
+        const windowUrl = window.location.search;
+        const params = new URLSearchParams(windowUrl);
+        idSessionRoom = params.get('roomId');
+    }, []);
+    useEffect(() => {
+        socket.on('filter', (data) => {
+            if(data.user !== cookies.get('username')) setFilter(data.filter);
+        });
+        socket.on('customFilter', (data) => {
+            if(data.user !== cookies.get('username')) setCustomFilter(data.custom);
+        });
+    }, []);
     return (
         <div className="container">
             <div className="color-picker">
@@ -112,21 +130,21 @@ export const Container = (props) => {
                     </div>
                 ): (
                     <div className="switch-field">
-                        <input type="radio" id="empty" name="" value="Normal" checked={filter === ''} onChange={() => {setFilter(''); setShowRanges(false)}}/>
+                        <input type="radio" id="empty" name="" value="Normal" checked={filter === ''} onChange={() => {setFilter(''); setShowRanges(false); socket.emit('filter', {filter: filter, idRoom: idSessionRoom, user: cookies.get('username')})}}/>
                         <label htmlFor='empty'>Normal</label>
-                        <input type="radio" id="grayscale" name="grayscale" value="Blanco y negro" checked={filter === 'grayscale'} onChange={() => {setFilter('grayscale'); setShowRanges(false)}}/>
+                        <input type="radio" id="grayscale" name="grayscale" value="Blanco y negro" checked={filter === 'grayscale'} onChange={() => {setFilter('grayscale'); setShowRanges(false); socket.emit('filter', {filter: filter, idRoom: idSessionRoom, user: cookies.get('username')})}}/>
                         <label htmlFor='grayscale'>Blanco y negro</label>
-                        <input type="radio" id="invert" name="invert" value="Invertir" checked={filter === 'invert'} onChange={() => {setFilter('invert'); setShowRanges(false)}}/>
+                        <input type="radio" id="invert" name="invert" value="Invertir" checked={filter === 'invert'} onChange={() => {setFilter('invert'); setShowRanges(false); socket.emit('filter', {filter: filter, idRoom: idSessionRoom, user: cookies.get('username')})}}/>
                         <label htmlFor='invert'>Invertir</label>
-                        <input type="radio" id="brightness" name="brightness" value="Brillo" checked={filter === 'brightness'} onChange={() => {setFilter('brightness'); setShowRanges(false)}}/>
+                        <input type="radio" id="brightness" name="brightness" value="Brillo" checked={filter === 'brightness'} onChange={() => {setFilter('brightness'); setShowRanges(false); socket.emit('filter', {filter: filter, idRoom: idSessionRoom, user: cookies.get('username')})}}/>
                         <label htmlFor='brightness'>Brillo</label>
-                        <input type="radio" id="saturation" name="saturation" value="Saturar" checked={filter === 'saturation'} onChange={() => {setFilter('saturation'); setShowRanges(false)}}/>
+                        <input type="radio" id="saturation" name="saturation" value="Saturar" checked={filter === 'saturation'} onChange={() => {setFilter('saturation'); setShowRanges(false); socket.emit('filter', {filter: filter, idRoom: idSessionRoom, user: cookies.get('username')})}}/>
                         <label htmlFor='saturation'>Saturar</label>
-                        <input type="radio" id="sepia" name="sepia" value="Sepia" checked={filter === 'sepia'} onChange={() => {setFilter('sepia'); setShowRanges(false)}}/>
+                        <input type="radio" id="sepia" name="sepia" value="Sepia" checked={filter === 'sepia'} onChange={() => {setFilter('sepia'); setShowRanges(false); socket.emit('filter', {filter: filter, idRoom: idSessionRoom, user: cookies.get('username')})}}/>
                         <label htmlFor='sepia'>Sepia</label>
-                        <input type="radio" id="blur" name="blur" value="Difuminar" checked={filter === 'blur'} onChange={() => {setFilter('blur'); setShowRanges(false)}}/>
+                        <input type="radio" id="blur" name="blur" value="Difuminar" checked={filter === 'blur'} onChange={() => {setFilter('blur'); setShowRanges(false); socket.emit('filter', {filter: filter, idRoom: idSessionRoom, user: cookies.get('username')})}}/>
                         <label htmlFor='blur'>Difuminar</label>
-                        <input type="radio" id="contrast" name="contrast" value="Contrastar" checked={filter === 'contrast'} onChange={() => {setFilter('contrast'); setShowRanges(false)}}/>
+                        <input type="radio" id="contrast" name="contrast" value="Contrastar" checked={filter === 'contrast'} onChange={() => {setFilter('contrast'); setShowRanges(false); socket.emit('filter', {filter: filter, idRoom: idSessionRoom, user: cookies.get('username')})}}/>
                         <label htmlFor='contrast'>Contrastar</label>
                         <input type="radio" id="custom" name="custom" value="Personalizado" checked={filter === 'custom'} onChange={() => {setFilter('normal'); setShowRanges(true); setUseCustomFilter(true);}}/>
                         <label htmlFor='custom'>Personalizado</label>
@@ -134,7 +152,7 @@ export const Container = (props) => {
                 )}
             </div>
             <div className="board-container">
-                <Board color={values.color} size={values.size} option={option} img={values.img} filter={filter} brightness={customFilter.brightness} saturate={customFilter.saturate} sepia={customFilter.sepia} blur={customFilter.blur} contrast={customFilter.contrast} customFilter={useCustomFilter} changeColorDataDropper={changeColorDataDropper} distortion={values.distortion}/>
+                <Board color={values.color} size={values.size} option={option} img={values.img} filter={filter} brightness={customFilter.brightness} saturate={customFilter.saturate} sepia={customFilter.sepia} blur={customFilter.blur} contrast={customFilter.contrast} customFilter={useCustomFilter} changeColorDataDropper={changeColorDataDropper} distortion={values.distortion} socket={socket}/>
             </div>
         </div>
     )

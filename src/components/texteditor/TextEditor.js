@@ -23,7 +23,7 @@ const LIST_TYPES = ["numbered-list", "bulleted-list"];
 
 export const TextEditor = (props) => {
   // sessionStorage.getItem('content')
-  const [value, setValue] = useState(JSON.parse(sessionStorage.getItem('content')));
+  const [value, setValue] = useState(JSON.parse(sessionStorage.getItem('content')) || initialValue);
   const renderElement = useCallback(props => <Element {...props} />, []);
   const renderLeaf = useCallback(props => <Leaf {...props} />, []);
   const editor = useMemo(() => withHistory(withReact(createEditor())), []);
@@ -38,14 +38,16 @@ export const TextEditor = (props) => {
   useEffect(() => {
     if(!cookies.get('loggedIn')) props.history.push('/login');
     socket.on('new-text', (data) => {
-      setValue(data);
+      if(data.user !== cookies.get('username')) setValue(data);
     });
-    
     socket.emit('pedir-texto', {
       usuario: cookies.get('username'),
       nombre: fileName.split('.')[0]
     })
     socket.emit("refresh-page", cookies.get('username'));
+    const windowUrl = window.location.search;
+    const params = new URLSearchParams(windowUrl);
+    if(!params.get('button')) socket.emit("join-room", {roomId: idSessionRoom, usuario: cookies.get('username')});
   }, [props.history]);
   return (
     <div className="textEditor">
@@ -80,7 +82,8 @@ export const TextEditor = (props) => {
             onKeyUp={(e) => {
                 console.log(value);
                 setTimeout(() => {
-                    socket.emit('new-text', {data: value, idRoom: idSessionRoom});
+                  console.log(fileName)
+                    socket.emit('new-text', {data: value, idRoom: idSessionRoom, user: cookies.get('username'), nombre: fileName});
                 }, 100);
             }}
         />
